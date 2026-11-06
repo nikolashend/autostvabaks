@@ -15,6 +15,9 @@ return [
     // true на тестовом домене: robots.txt закрывает сайт, на всех страницах <meta name="robots" content="noindex">
     'noindex' => (bool) env('SITE_NOINDEX', false),
 
+    // "user:password" — закрывает весь сайт HTTP Basic Auth (только тестовый домен)
+    'staging_auth' => env('STAGING_AUTH', ''),
+
     'locales' => [
         'et' => ['name' => 'Eesti', 'short' => 'ET', 'og' => 'et_EE'],
         'ru' => ['name' => 'Русский', 'short' => 'RU', 'og' => 'ru_RU'],

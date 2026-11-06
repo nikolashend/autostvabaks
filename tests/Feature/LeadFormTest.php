@@ -196,6 +196,27 @@ class LeadFormTest extends TestCase
         }
     }
 
+    public function test_staging_basic_auth_protects_the_whole_site_when_configured(): void
+    {
+        config(['autostvabaks.staging_auth' => 'tester:secret']);
+
+        $this->get('/')->assertStatus(401)->assertHeader('WWW-Authenticate');
+        $this->get('/admin/login')->assertStatus(401);
+        $this->withBasicAuth('tester', 'wrong')->get('/')->assertStatus(401);
+        $this->withBasicAuth('tester', 'secret')->get('/')->assertOk()->assertSee('id="lead-step1"', false);
+
+        config(['autostvabaks.staging_auth' => '']);
+        $this->get('/')->assertOk();
+    }
+
+    public function test_noindex_flag_closes_the_site_for_search_engines(): void
+    {
+        config(['autostvabaks.noindex' => true]);
+
+        $this->get('/')->assertOk()->assertSee('<meta name="robots" content="noindex, nofollow">', false);
+        $this->get('/robots.txt')->assertOk()->assertSee('Disallow: /')->assertDontSee('Sitemap:');
+    }
+
     public function test_sitemap_lists_every_language_version(): void
     {
         $this->get('/sitemap.xml')
