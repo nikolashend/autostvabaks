@@ -47,12 +47,25 @@ php artisan serve --port=8010
 
 Отзывы, FAQ, страницы и контакты редактируются в админке.
 
-## Деплой (production)
+## Тестовый сервер (reg.ru)
 
-1. `.env`: `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://autostvabaks.ee`, доступы к БД, **SMTP** (`MAIL_MAILER=smtp`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS=info@autostvabaks.ee`). Пока `MAIL_MAILER=log` — письма пишутся в `storage/logs/laravel.log`.
-2. `composer install --no-dev --optimize-autoloader`, `php artisan migrate --force --seed`, `php artisan optimize`, `php artisan filament:assets`.
+- https://autostvabaks.adme.ee — хостинг reg.ru (ispmanager), SSH-алиас `autostvabaks` в `~/.ssh/config`, каталог `~/www/autostvabaks.adme.ee` (document root → `public/`), PHP 8.3 (`/opt/php/8.3/bin/php`), MySQL `u1579543_autostvabaks`.
+- Код приходит из GitHub `git@github.com:nikolashend/autostvabaks.git` через deploy-ключ (`~/.ssh/autostvabaks_deploy`, алиас `github.com-autostvabaks`).
+- В `.env` сервера `SITE_NOINDEX=true` — тестовый домен закрыт от поисковиков (`robots.txt` + `noindex`). Почта — Mailtrap sandbox.
+- Сертификат самоподписанный (как у других тестовых поддоменов); в браузере нужно подтвердить исключение.
+
+Обновление после `git push`:
+
+```bash
+ssh autostvabaks "cd ~/www/autostvabaks.adme.ee && bash deploy.sh"
+```
+
+## Деплой (production, autostvabaks.ee)
+
+1. `.env`: `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://autostvabaks.ee`, `SITE_NOINDEX=false`, доступы к БД, боевой **SMTP** вместо Mailtrap (`MAIL_FROM_ADDRESS=info@autostvabaks.ee`).
+2. `composer install --no-dev --optimize-autoloader`, `php artisan migrate --force --seed`, `php artisan optimize`, `php artisan filament:assets` (всё это делает `deploy.sh`).
 3. Document root веб-сервера → `public/`. PHP: `upload_max_filesize` и `post_max_size` не меньше 48M (10 фото × до 8 МБ до сжатия).
-4. Для домена с SPF/DKIM отправителя `info@autostvabaks.ee`, чтобы письма с заявками не попадали в спам.
+4. SPF/DKIM для отправителя `info@autostvabaks.ee`, чтобы письма с заявками не попадали в спам.
 
 ## Что ждём от клиента (не блокирует разработку)
 
