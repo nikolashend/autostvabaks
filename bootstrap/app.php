@@ -15,8 +15,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'locale' => \App\Http\Middleware\SetLocale::class,
         ]);
 
-        // Whole-site HTTP Basic Auth on the test domain (STAGING_AUTH in .env).
-        $middleware->prepend(\App\Http\Middleware\StagingBasicAuth::class);
+        // Whole-site HTTP Basic Auth on the test domain (STAGING_AUTH in .env),
+        // preceded by the http:// → https:// redirect (when APP_URL is https).
+        $middleware->prepend([
+            \App\Http\Middleware\ForceHttps::class,
+            \App\Http\Middleware\StagingBasicAuth::class,
+        ]);
 
         // The public lead form is anonymous and keeps no session state, so it is
         // protected by a honeypot + rate limit instead of a CSRF token. A token

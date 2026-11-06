@@ -209,6 +209,20 @@ class LeadFormTest extends TestCase
         $this->get('/')->assertOk();
     }
 
+    public function test_plain_http_is_redirected_to_https_when_app_url_is_https(): void
+    {
+        config(['app.url' => 'https://autostvabaks.test']);
+
+        $this->get('http://autostvabaks.test/ru?x=1')
+            ->assertRedirect('https://autostvabaks.test/ru?x=1')
+            ->assertStatus(301);
+
+        $this->get('https://autostvabaks.test/ru')->assertOk();
+
+        config(['app.url' => 'http://localhost']);
+        $this->get('http://localhost/ru')->assertOk();
+    }
+
     public function test_noindex_flag_closes_the_site_for_search_engines(): void
     {
         config(['autostvabaks.noindex' => true]);
