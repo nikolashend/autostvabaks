@@ -69,7 +69,11 @@ class ReleaseCheck extends Command
         }
 
         // --- rendered public pages ----------------------------------------
-        $markers = array_merge(config('autostvabaks.placeholder_markers', []), ['autostvabaks.adme.ee']);
+        // The staging host must never appear in production output; on staging itself it is expected.
+        $markers = config('autostvabaks.placeholder_markers', []);
+        if ($production) {
+            $markers[] = 'autostvabaks.adme.ee';
+        }
         foreach (array_keys(Site::locales()) as $locale) {
             $url = Site::route('home', [], $locale);
             $html = $this->render($url);
