@@ -95,7 +95,7 @@ P2: self-host Urbanist; purge `theme.css`/Bootstrap; HTML sanitiser for page con
 
 ## 19. Git evidence
 
-Pre-Stage-1: `e675a2d`. Stage 1 commit: see `git log` (single commit `feat(autostvabaks): harden prototype and freeze X999 foundation`). Deployed to staging via `deploy.sh` (see section 22 of the chat report for the live verification).
+Pre-Stage-1: `e675a2d`. Stage 1: `450afdb feat(autostvabaks): harden prototype and freeze X999 foundation` + follow-ups found while verifying on staging: `6c553d2` (release-check renders behind Basic Auth), `f71c355` (deploy runs the check after `artisan up`), `675ac68` (staging-host marker only on production). Deployed to staging via `deploy.sh`; live checks: `X-Robots-Tag`/security headers present, `noindex` meta, canonical/hreflang on staging host, `robots.txt Disallow: /`, `www.` → 301, migration ran, `site:release-check` passes with only the 6 expected draft-legal-page warnings. Worktree clean.
 
 ## 20. Acceptance matrix
 
