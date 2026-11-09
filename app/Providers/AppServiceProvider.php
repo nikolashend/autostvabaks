@@ -9,6 +9,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -21,6 +22,14 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Canonical, hreflang, OG and schema URLs are generated from APP_URL, never
+        // from the Host header, so a stray alias (www., server IP, old staging name)
+        // can never leak into SEO output. Local dev and tests keep the request host.
+        if (! $this->app->runningUnitTests() && str_starts_with((string) config('app.url'), 'https://')) {
+            URL::forceRootUrl(config('app.url'));
+            URL::forceScheme('https');
+        }
+
         // Lead form: generous for a real visitor, tight enough to stop a flood.
         RateLimiter::for('leads', function (Request $request) {
             return Limit::perMinutes(10, 8)

@@ -20,7 +20,7 @@
 
             {{-- 2. Address / phone / e-mail --}}
             <div class="col-lg-3 col-md-6">
-                <h6 class="asv-footer__title">{{ __('site.footer.contact') }}</h6>
+                <h3 class="asv-footer__title">{{ __('site.footer.contact') }}</h3>
                 <ul class="asv-footer__contacts">
                     @if ($address)
                         <li>
@@ -45,7 +45,7 @@
 
             {{-- 3. Site sections (+ information / SEO pages once they are added in the admin panel) --}}
             <div class="col-lg-2 col-md-6 col-6">
-                <h6 class="asv-footer__title">{{ __('site.footer.links') }}</h6>
+                <h3 class="asv-footer__title">{{ __('site.footer.links') }}</h3>
                 <ul class="menu-footer">
                     <li><a href="{{ $anchor('kuidas-tootab') }}">{{ __('site.nav.how') }}</a></li>
                     <li><a href="{{ $anchor('miks') }}">{{ __('site.nav.why') }}</a></li>
@@ -57,7 +57,7 @@
             {{-- 4. Legal --}}
             <div class="col-lg-3 col-md-6 col-6">
                 @if ($footerLegalPages->isNotEmpty())
-                    <h6 class="asv-footer__title">{{ __('site.footer.legal') }}</h6>
+                    <h3 class="asv-footer__title">{{ __('site.footer.legal') }}</h3>
                     <ul class="menu-footer">
                         @foreach ($footerLegalPages as $footerPage)
                             <li><a href="{{ $footerPage->url() }}">{{ $footerPage->t('title') }}</a></li>
@@ -68,7 +68,7 @@
 
             @if ($footerInfoPages->isNotEmpty())
                 <div class="col-12">
-                    <h6 class="asv-footer__title">{{ __('site.footer.info') }}</h6>
+                    <h3 class="asv-footer__title">{{ __('site.footer.info') }}</h3>
                     <ul class="menu-footer asv-footer__inline">
                         @foreach ($footerInfoPages as $footerPage)
                             <li><a href="{{ $footerPage->url() }}">{{ $footerPage->t('title') }}</a></li>

@@ -61,7 +61,17 @@ class StoreLeadRequest extends FormRequest
             'mileage' => ['nullable', 'integer', 'min:0', 'max:5000000'],
             'info' => ['nullable', 'string', 'max:5000'],
             'photos' => ['nullable', 'array', 'max:'.$cfg['max_photos']],
-            'photos.*' => ['file', 'mimes:jpg,jpeg,png,webp', 'max:'.($cfg['max_photo_mb'] * 1024)],
+            // `mimes` checks the real content (finfo), not the client-sent type or name;
+            // SVG / HEIC / executables are rejected. The stored name is generated server-side.
+            'photos.*' => ['file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:'.($cfg['max_photo_mb'] * 1024)],
+
+            // Optional attribution – silently ignored when absent or malformed.
+            'utm_source' => ['nullable', 'string', 'max:200'],
+            'utm_medium' => ['nullable', 'string', 'max:200'],
+            'utm_campaign' => ['nullable', 'string', 'max:200'],
+            'utm_content' => ['nullable', 'string', 'max:200'],
+            'utm_term' => ['nullable', 'string', 'max:200'],
+            'gclid' => ['nullable', 'string', 'max:200'],
         ];
     }
 

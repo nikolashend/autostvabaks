@@ -125,13 +125,16 @@ return [
     'contact' => [
         'eyebrow' => 'Kontakt',
         'title' => 'Võta meiega ühendust',
-        'lead' => 'Tegutseme üle kogu Eesti. Kirjuta või helista – vastame esimesel võimalusel.',
+        'lead' => 'Tegutseme üle kogu Eesti. Saada päring või kirjuta meile – vastame esimesel võimalusel.',
+        'lead_with_phone' => 'Tegutseme üle kogu Eesti. Kirjuta või helista – vastame esimesel võimalusel.',
         'address' => 'Aadress',
         'phone' => 'Telefon',
         'email' => 'E-post',
         'messengers' => 'Kirjuta meile',
         'map_title' => 'Autostvabaks asukoht kaardil',
         'open_map' => 'Ava Google Mapsis',
+        'load_map' => 'Näita kaarti',
+        'load_map_note' => 'Kaardi laadimisel kasutatakse Google Mapsi teenust.',
     ],
 
     'footer' => [

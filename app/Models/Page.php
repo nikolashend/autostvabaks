@@ -25,7 +25,7 @@ class Page extends Model
 
     protected $fillable = [
         'key', 'slug_et', 'slug_ru', 'slug_en', 'title', 'content',
-        'meta_description', 'footer_group', 'sort', 'is_active',
+        'meta_description', 'footer_group', 'sort', 'is_active', 'is_indexable',
     ];
 
     protected function casts(): array
@@ -35,6 +35,7 @@ class Page extends Model
             'content' => 'array',
             'meta_description' => 'array',
             'is_active' => 'boolean',
+            'is_indexable' => 'boolean',
         ];
     }
 
@@ -48,6 +49,18 @@ class Page extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true)->orderBy('sort')->orderBy('id');
+    }
+
+    /** Pages that may appear in the sitemap / be indexed: published AND marked indexable. */
+    public function scopeIndexable(Builder $query): Builder
+    {
+        return $query->active()->where('is_indexable', true);
+    }
+
+    /** @return array<string, string> */
+    public function alternates(): array
+    {
+        return Site::alternates(fn (string $locale) => $this->url($locale));
     }
 
     public function slug(?string $locale = null): string

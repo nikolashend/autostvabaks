@@ -15,14 +15,10 @@ class PageController extends Controller
 
         abort_if($page === null, 404);
 
-        $alternates = [];
-        foreach (array_keys(Site::locales()) as $locale) {
-            $alternates[$locale] = $page->url($locale);
-        }
-
         return view('site.page', [
             'page' => $page,
-            'alternates' => $alternates,
+            'alternates' => $page->alternates(),
+            'noindex' => ! $page->is_indexable,
             'metaTitle' => $page->t('title').' – '.config('app.name'),
             'metaDescription' => $page->t('meta_description')
                 ?: Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($page->t('content')))), 155),

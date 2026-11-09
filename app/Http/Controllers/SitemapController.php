@@ -10,21 +10,13 @@ class SitemapController extends Controller
 {
     public function sitemap(): Response
     {
-        $locales = array_keys(Site::locales());
         $entries = [];
 
-        $home = [];
-        foreach ($locales as $locale) {
-            $home[$locale] = Site::route('home', [], $locale);
-        }
-        $entries[] = ['alternates' => $home, 'lastmod' => null];
+        $entries[] = ['alternates' => Site::routeAlternates('home'), 'lastmod' => null];
 
-        foreach (Page::active()->get() as $page) {
-            $urls = [];
-            foreach ($locales as $locale) {
-                $urls[$locale] = $page->url($locale);
-            }
-            $entries[] = ['alternates' => $urls, 'lastmod' => $page->updated_at?->toDateString()];
+        // Only published AND indexable pages: a draft / utility page never enters the sitemap.
+        foreach (Page::indexable()->get() as $page) {
+            $entries[] = ['alternates' => $page->alternates(), 'lastmod' => $page->updated_at?->toDateString()];
         }
 
         return response()

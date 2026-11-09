@@ -7,8 +7,9 @@ use Illuminate\Database\Seeder;
 
 /**
  * Placeholders that only demonstrate the carousel. They are deliberately worded
- * as placeholders (no invented customers) – replace them with real reviews in
- * the admin panel (Отзывы) before the site goes live.
+ * as placeholders (no invented customers), seeded INACTIVE, and the public site
+ * additionally refuses to render anything matching autostvabaks.placeholder_markers
+ * outside the local environment. Replace them with real reviews in the admin panel.
  */
 class TestimonialSeeder extends Seeder
 {
@@ -34,7 +35,7 @@ class TestimonialSeeder extends Seeder
                 ],
                 'rating' => 5,
                 'sort' => $i * 10,
-                'is_active' => true,
+                'is_active' => false,
             ]);
         }
     }

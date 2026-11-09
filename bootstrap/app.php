@@ -21,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\ForceHttps::class,
             \App\Http\Middleware\StagingBasicAuth::class,
         ]);
+        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
 
         // The public lead form is anonymous and keeps no session state, so it is
         // protected by a honeypot + rate limit instead of a CSRF token. A token

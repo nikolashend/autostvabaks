@@ -26,20 +26,39 @@
 }
 
 :root {
-  /* Brand palette – the single place to re-skin the site once the final
-     Autostvabaks colours are supplied. --bs-brand-2 also drives theme buttons. */
-  --bs-brand-2: #70f46d;
-  --bs-brand-2-darken: #5edd5b;
+  /* ===== Design tokens (single source for re-skinning) =====================
+     PROTOTYPE palette – NOT the approved brand. Approved direction (Stage 2):
+       magenta  #E6007E  → --asv-color-brand
+       graphite #141414  → --asv-color-ink
+       white    #FFFFFF  → --asv-color-surface
+     Keep the same values in config/autostvabaks.php → brand.* (admin + theme-color).
+     Everything below reads these tokens; nothing else in this file hard-codes
+     a brand colour. --bs-brand-2 is the Carento theme hook (buttons, accents). */
+  --asv-color-brand: #70f46d;
+  --asv-color-brand-dark: #5edd5b;
+  --asv-color-on-brand: #101010;
+  --asv-color-ink: #101010;
+  --asv-color-surface: #ffffff;
+  --asv-color-muted: #5c6166;
+  --asv-color-line: #e2e5e3;
+  --asv-color-tint: #f4f6f5;
+  --asv-color-danger: #c62828;
 
-  --asv-accent: var(--bs-brand-2);
-  --asv-accent-dark: var(--bs-brand-2-darken);
-  --asv-ink: #101010;
-  --asv-muted: #5c6166;
-  --asv-line: #e2e5e3;
-  --asv-tint: #f4f6f5;
-  --asv-danger: #c62828;
+  --asv-font: 'Urbanist', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --asv-radius: 16px;
+  --asv-radius-lg: 22px;
   --asv-header-h: 84px;
+
+  /* ---- Aliases used throughout the stylesheet / Carento theme ---- */
+  --bs-brand-2: var(--asv-color-brand);
+  --bs-brand-2-darken: var(--asv-color-brand-dark);
+  --asv-accent: var(--asv-color-brand);
+  --asv-accent-dark: var(--asv-color-brand-dark);
+  --asv-ink: var(--asv-color-ink);
+  --asv-muted: var(--asv-color-muted);
+  --asv-line: var(--asv-color-line);
+  --asv-tint: var(--asv-color-tint);
+  --asv-danger: var(--asv-color-danger);
 }
 
 html {
@@ -1188,16 +1207,39 @@ textarea.asv-input {
 }
 
 .asv-reviews__dots .swiper-pagination-bullet {
-  width: 9px;
-  height: 9px;
+  /* 24×24 touch target (WCAG 2.5.8) with a 9px visual dot drawn inside */
+  position: relative;
+  width: 24px;
+  height: 24px;
   margin: 0 !important;
+  border-radius: 12px;
+  background: transparent;
+  opacity: 1;
+  transition: width 0.2s;
+}
+
+.asv-reviews__dots .swiper-pagination-bullet::before {
+  content: '';
+  position: absolute;
+  inset: 7.5px 0;
+  margin: 0 auto;
+  width: 9px;
+  max-width: 100%;
   border-radius: 9px;
   background: #c6cbc8;
-  opacity: 1;
   transition: width 0.2s, background-color 0.2s;
 }
 
+.asv-reviews__dots .swiper-pagination-bullet:focus-visible {
+  outline: 2px solid var(--asv-ink);
+  outline-offset: 2px;
+}
+
 .asv-reviews__dots .swiper-pagination-bullet-active {
+  width: 40px;
+}
+
+.asv-reviews__dots .swiper-pagination-bullet-active::before {
   width: 26px;
   background: var(--asv-ink);
 }
@@ -1416,6 +1458,52 @@ textarea.asv-input {
   width: 100%;
   height: 100%;
   border: 0;
+}
+
+/* Click-to-load facade shown instead of the Google iframe */
+.asv-map__load {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 24px;
+  border: 0;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(0, 0, 0, 0.04), transparent 45%),
+    radial-gradient(circle at 70% 65%, rgba(0, 0, 0, 0.05), transparent 40%),
+    var(--asv-tint);
+  color: var(--asv-ink);
+  text-align: center;
+  cursor: pointer;
+}
+
+.asv-map__load:focus-visible {
+  outline: 3px solid var(--asv-accent);
+  outline-offset: -3px;
+}
+
+.asv-map__load strong {
+  font-size: 18px;
+}
+
+.asv-map__load small {
+  color: var(--asv-muted);
+  font-size: 13px;
+}
+
+.asv-map__pin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--asv-accent);
+  color: var(--asv-color-on-brand);
 }
 
 .asv-map__link {

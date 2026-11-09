@@ -33,7 +33,8 @@ class AdminPanelProvider extends PanelProvider
             ->brandName('Autostvabaks')
             ->favicon(asset('assets/imgs/brand/favicon.svg'))
             ->colors([
-                'primary' => Color::Green,
+                // Same token as the public site (config/autostvabaks.php → brand.primary)
+                'primary' => Color::hex(config('autostvabaks.brand.primary', '#70f46d')),
             ])
             ->navigationGroups(['Контент сайта', 'Система'])
             ->userMenuItems([

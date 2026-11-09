@@ -4,6 +4,10 @@
 
 Стек: Laravel 12 · PHP 8.2 · MySQL 8 · Filament 3 (админ-панель) · HTML-тема Carento v2.1 (ThemeForest).
 
+## Документация проекта (источник истины)
+
+`docs/autostvabaks/` — **любая следующая задача начинается с `AUTOSTVABAKS_X999_MASTER_BASELINE_V1.md`** (архитектура, правила SEO/индексации, форма, админка, факты, бренд, аналитика). Рядом: аудит текущего состояния, ADR, владение поисковыми интентами, реестр фактов/утверждений, матрица маршрутов/индексации, карта UI/UX-пробелов, отчёт Stage 1 и скриншоты baseline.
+
 ## Что реализовано
 
 - **Лендинг на трёх языках** — `/` (эстонский, основной), `/ru`, `/en`. Ручной переключатель, без автоматического редиректа по языку браузера; у каждой версии свой URL для Google Ads, `hreflang`, `sitemap.xml`, JSON-LD (AutoDealer + FAQPage).
@@ -32,6 +36,7 @@ php artisan serve --port=8010
 Пароль администратора задаётся через `ADMIN_EMAIL` / `ADMIN_PASSWORD` в `.env` до первого `db:seed`, иначе генерируется случайный. Нового администратора можно добавить в админке или командой `php artisan make:filament-user`.
 
 Тесты (SQLite in-memory, боевая база не затрагивается): `php artisan test`.
+Проверка перед публикацией: `php artisan site:release-check` (на боевом хосте блокирует noindex/debug/плейсхолдеры/черновики; `--strict` — тот же режим где угодно).
 
 ## Где что менять
 
@@ -62,7 +67,7 @@ ssh autostvabaks "cd ~/www/autostvabaks.adme.ee && bash deploy.sh"
 
 ## Деплой (production, autostvabaks.ee)
 
-1. `.env`: `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://autostvabaks.ee`, `SITE_NOINDEX=false`, доступы к БД, боевой **SMTP** вместо Mailtrap (`MAIL_FROM_ADDRESS=info@autostvabaks.ee`).
+1. `.env`: `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://autostvabaks.ee`, `SITE_NOINDEX=false`, `STAGING_AUTH=` (пусто), доступы к БД, боевой **SMTP** вместо Mailtrap (`MAIL_FROM_ADDRESS=info@autostvabaks.ee`).
 2. `composer install --no-dev --optimize-autoloader`, `php artisan migrate --force --seed`, `php artisan optimize`, `php artisan filament:assets` (всё это делает `deploy.sh`).
 3. Document root веб-сервера → `public/`. PHP: `upload_max_filesize` и `post_max_size` не меньше 48M (10 фото × до 8 МБ до сжатия).
 4. SPF/DKIM для отправителя `info@autostvabaks.ee`, чтобы письма с заявками не попадали в спам.

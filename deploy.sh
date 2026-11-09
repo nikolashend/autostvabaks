@@ -14,5 +14,9 @@ $PHP "$COMPOSER" install --no-dev --optimize-autoloader --no-interaction --no-pr
 $PHP artisan migrate --force
 $PHP artisan filament:assets
 $PHP artisan optimize
+# Release gate: warnings on staging, blocking failures on the production host
+# (SITE_NOINDEX, APP_DEBUG, STAGING_AUTH, placeholder reviews, draft pages, staging host in SEO output).
+# On failure the site stays in maintenance mode (503): fix .env / content, re-run the check, then `artisan up`.
+$PHP artisan site:release-check
 $PHP artisan up
 echo "Deployed $(git rev-parse --short HEAD)"

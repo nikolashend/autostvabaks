@@ -125,13 +125,16 @@ return [
     'contact' => [
         'eyebrow' => 'Contact',
         'title' => 'Get in touch',
-        'lead' => 'We work all over Estonia. Write or call us – we will reply as soon as possible.',
+        'lead' => 'We work all over Estonia. Send a request or write to us – we will reply as soon as possible.',
+        'lead_with_phone' => 'We work all over Estonia. Write or call us – we will reply as soon as possible.',
         'address' => 'Address',
         'phone' => 'Phone',
         'email' => 'E-mail',
         'messengers' => 'Message us',
         'map_title' => 'Autostvabaks on the map',
         'open_map' => 'Open in Google Maps',
+        'load_map' => 'Show map',
+        'load_map_note' => 'Loading the map uses the Google Maps service.'
     ],
 
     'footer' => [

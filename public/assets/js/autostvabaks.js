@@ -6,6 +6,42 @@
   var $$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
 
   /* ------------------------------------------------------------------ *
+   * Analytics contract (docs/autostvabaks/AUTOSTVABAKS_X999_MASTER_BASELINE_V1.md).
+   * Events go to window.dataLayer only; nothing here may carry personal data
+   * (no plate, phone, e-mail, message text, file names).
+   * ------------------------------------------------------------------ */
+  var ATTRIBUTION_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'gclid'];
+  var ATTRIBUTION_STORE = 'asv_attribution';
+
+  function track(event, params) {
+    var payload = { event: event };
+    Object.keys(params || {}).forEach(function (k) { payload[k] = params[k]; });
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push(payload);
+  }
+  window.asvTrack = track;
+
+  // First-touch attribution: keep the campaign parameters of the landing URL for the
+  // visit (sessionStorage), so a lead sent from a later page view is still attributed.
+  function attribution() {
+    var found = {};
+    try {
+      var stored = JSON.parse(sessionStorage.getItem(ATTRIBUTION_STORE) || 'null');
+      if (stored) return stored;
+    } catch (err) { /* private mode */ }
+    try {
+      var params = new URLSearchParams(window.location.search);
+      ATTRIBUTION_KEYS.forEach(function (k) {
+        var v = (params.get(k) || '').trim();
+        if (v) found[k] = v.slice(0, 200);
+      });
+      if (Object.keys(found).length) sessionStorage.setItem(ATTRIBUTION_STORE, JSON.stringify(found));
+    } catch (err) { /* ignore */ }
+    return found;
+  }
+  attribution();
+
+  /* ------------------------------------------------------------------ *
    * Header: compact / glass state after scrolling
    * ------------------------------------------------------------------ */
   var header = $('.asv-header');
@@ -52,6 +88,8 @@
    * ------------------------------------------------------------------ */
   $$('[data-focus-form]').forEach(function (link) {
     link.addEventListener('click', function () {
+      var zone = link.closest('section, header, footer');
+      track('buyback_cta_click', { cta_location: zone ? (zone.id || zone.tagName.toLowerCase()) : 'page' });
       var reg = $('#lead-reg');
       if (!reg) return; // inner page – the link simply navigates to the landing page
       setTimeout(function () { reg.focus({ preventScroll: true }); }, 450);
@@ -79,6 +117,37 @@
       observer.observe(el);
     });
   }
+
+  /* ------------------------------------------------------------------ *
+   * Contact clicks + FAQ opens (no personal data in the events)
+   * ------------------------------------------------------------------ */
+  $$('a[href^="tel:"]').forEach(function (a) { a.addEventListener('click', function () { track('buyback_phone_click'); }); });
+  $$('a[href*="wa.me"]').forEach(function (a) { a.addEventListener('click', function () { track('buyback_whatsapp_click'); }); });
+  $$('a[href*="t.me"]').forEach(function (a) { a.addEventListener('click', function () { track('buyback_telegram_click'); }); });
+  $$('.asv-faq .accordion-button').forEach(function (btn, i) {
+    btn.addEventListener('click', function () {
+      if (btn.classList.contains('collapsed')) track('buyback_faq_open', { faq_index: i + 1 });
+    });
+  });
+
+  /* ------------------------------------------------------------------ *
+   * Map: the Google Maps iframe is loaded only when the visitor asks for it
+   * ------------------------------------------------------------------ */
+  $$('[data-map-load]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var box = btn.closest('.asv-map');
+      if (!box) return;
+      var iframe = document.createElement('iframe');
+      iframe.src = box.getAttribute('data-map-src');
+      iframe.title = box.getAttribute('data-map-title') || 'Map';
+      iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+      iframe.setAttribute('allowfullscreen', '');
+      box.classList.add('is-loaded');
+      box.replaceChild(iframe, btn);
+      iframe.focus();
+      track('buyback_map_load');
+    });
+  });
 
   /* ------------------------------------------------------------------ *
    * Testimonials carousel: one review on screen, switchable
@@ -122,6 +191,15 @@
     var photos = []; // { file: File, url: objectURL }
     var sending = false;
     var sent = false;
+    var started = false;
+    var step1Submit = $('button[type="submit"]', step1);
+
+    // First interaction with the form = funnel start (once per page view)
+    step1.addEventListener('focusin', function () {
+      if (started) return;
+      started = true;
+      track('buyback_form_start');
+    });
 
     /* ----- helpers ----- */
 
@@ -222,21 +300,29 @@
     // "Alusta päringut": validate and open step 2 – nothing is sent yet.
     step1.addEventListener('submit', function (e) {
       e.preventDefault();
-      if (!showStep1Errors(validateStep1())) return;
+      var errors = validateStep1();
+      if (!showStep1Errors(errors)) {
+        track('buyback_form_error', { step: 1, fields: Object.keys(errors).join(',') });
+        return;
+      }
 
       if (sent) resetAll(false); // a new request after a successful one
       $('[data-lead-summary]', modalEl).textContent = normalizeReg(step1.elements.reg_number.value);
+      track('buyback_form_step1_complete');
       modal.show();
     });
 
     modalEl.addEventListener('shown.bs.modal', function () {
       var target = sent ? success : $('#lead-mileage');
       if (target) target.focus({ preventScroll: true });
+      if (!sent) track('buyback_form_step2_view');
     });
 
     // "Back" / close keeps everything the user typed; after success the forms start clean.
+    // Focus returns to the button that opened the modal (Bootstrap does not restore it).
     modalEl.addEventListener('hidden.bs.modal', function () {
       if (sent) resetAll(true);
+      if (step1Submit) step1Submit.focus({ preventScroll: true });
     });
 
     /* ----- photos ----- */
@@ -326,6 +412,7 @@
           if (file.size > cfg.maxPhotoMb * 1024 * 1024) { error = msg.photo_size; return; }
           photos.push({ file: file, url: URL.createObjectURL(file) });
         });
+        if (files.length) track('buyback_photo_add', { photo_count: photos.length });
         setError('photos', error);
         renderPhotos();
       });
@@ -400,6 +487,7 @@
       if (mileage && !/^\d[\d\s]*$/.test(mileage)) {
         setError('mileage', msg.mileage_invalid);
         step2.elements.mileage.focus();
+        track('buyback_form_error', { step: 2, fields: 'mileage' });
         return;
       }
 
@@ -414,9 +502,12 @@
       data.append('info', step2.elements.info.value);
       data.append('website', step2.elements.website.value);
       data.append('referrer', document.referrer || '');
+      var attr = attribution();
+      Object.keys(attr).forEach(function (k) { data.append(k, attr[k]); });
       photos.forEach(function (photo) { data.append('photos[]', photo.file, photo.file.name); });
 
       setSending(true);
+      track('buyback_form_submit', { photo_count: photos.length, has_price: !!digits(step1.elements.desired_price.value) });
 
       fetch(cfg.endpoint, {
         method: 'POST',
@@ -439,9 +530,11 @@
             step2.classList.add('d-none');
             success.classList.remove('d-none');
             success.focus();
+            track('buyback_form_success');
             return;
           }
 
+          track('buyback_form_error', { step: 2, status: result.status, fields: result.body.errors ? Object.keys(result.body.errors).join(',') : '' });
           if (result.status === 422 && result.body.errors) return applyServerErrors(result.body.errors);
           if (result.status === 413) return setError('photos', msg.photo_size);
           if (result.status === 429) { formError.textContent = result.body.message || msg.throttle; return; }
@@ -450,6 +543,7 @@
         })
         .catch(function () {
           setSending(false);
+          track('buyback_form_error', { step: 2, status: 0 });
           formError.textContent = msg.generic;
         });
     });

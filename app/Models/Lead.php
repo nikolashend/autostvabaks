@@ -16,8 +16,11 @@ class Lead extends Model
     protected $fillable = [
         'reg_number', 'phone', 'email', 'desired_price', 'language', 'mileage',
         'info', 'photos', 'locale', 'ip', 'user_agent', 'referrer',
+        'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'gclid',
         'mail_sent_at', 'mail_error',
     ];
+
+    public const ATTRIBUTION_FIELDS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'gclid'];
 
     protected function casts(): array
     {

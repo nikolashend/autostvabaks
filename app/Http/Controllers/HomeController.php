@@ -12,16 +12,11 @@ class HomeController extends Controller
 {
     public function index(): View
     {
-        $alternates = [];
-        foreach (array_keys(Site::locales()) as $locale) {
-            $alternates[$locale] = Site::route('home', [], $locale);
-        }
-
         return view('site.home', [
-            'testimonials' => Testimonial::active()->get(),
+            'testimonials' => Testimonial::published()->get(),
             'faqs' => Faq::active()->get(),
             'termsPage' => Page::byKey('terms'),
-            'alternates' => $alternates,
+            'alternates' => Site::routeAlternates('home'),
             'metaTitle' => __('site.meta.title'),
             'metaDescription' => __('site.meta.description'),
         ]);

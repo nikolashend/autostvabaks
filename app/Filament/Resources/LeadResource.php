@@ -177,6 +177,12 @@ class LeadResource extends Resource
                     TextEntry::make('ip')->label('IP-адрес')->placeholder('—'),
                     TextEntry::make('referrer')->label('Источник перехода')->placeholder('—'),
                     TextEntry::make('user_agent')->label('Браузер')->placeholder('—')->columnSpanFull(),
+                    TextEntry::make('utm_source')->label('utm_source')->placeholder('—'),
+                    TextEntry::make('utm_medium')->label('utm_medium')->placeholder('—'),
+                    TextEntry::make('utm_campaign')->label('utm_campaign')->placeholder('—'),
+                    TextEntry::make('utm_content')->label('utm_content')->placeholder('—'),
+                    TextEntry::make('utm_term')->label('utm_term')->placeholder('—'),
+                    TextEntry::make('gclid')->label('gclid')->placeholder('—'),
                 ]),
         ]);
     }

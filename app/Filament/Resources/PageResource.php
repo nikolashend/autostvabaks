@@ -96,6 +96,11 @@ class PageResource extends Resource
                         ->label('Опубликована')
                         ->default(true)
                         ->inline(false),
+                    Forms\Components\Toggle::make('is_indexable')
+                        ->label('Индексировать поисковиками')
+                        ->helperText('Выключите для черновиков и служебных страниц: страница останется доступной по ссылке, но получит noindex и не попадёт в sitemap.')
+                        ->default(true)
+                        ->inline(false),
                 ]),
         ]);
     }
@@ -117,6 +122,7 @@ class PageResource extends Resource
                     ->formatStateUsing(fn (string $state) => Page::FOOTER_GROUPS[$state] ?? $state),
                 Tables\Columns\TextColumn::make('sort')->label('Порядок')->sortable(),
                 Tables\Columns\ToggleColumn::make('is_active')->label('Опубликована'),
+                Tables\Columns\IconColumn::make('is_indexable')->label('Индекс')->boolean(),
                 Tables\Columns\TextColumn::make('updated_at')->label('Изменена')->dateTime('d.m.Y H:i')->sortable(),
             ])
             ->actions([

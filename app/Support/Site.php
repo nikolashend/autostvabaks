@@ -40,6 +40,57 @@ class Site
         return route('l.'.$name, ['locale' => $locale] + $parameters);
     }
 
+    /**
+     * The single hreflang generator: one absolute URL per locale for the same
+     * page. Used for <link rel="alternate">, canonical and the sitemap, so the
+     * language versions are always reciprocal.
+     *
+     * @param  \Closure(string $locale): string  $urlFor
+     * @return array<string, string>
+     */
+    public static function alternates(\Closure $urlFor): array
+    {
+        $alternates = [];
+        foreach (array_keys(static::locales()) as $locale) {
+            $alternates[$locale] = $urlFor($locale);
+        }
+
+        return $alternates;
+    }
+
+    /** @return array<string, string> */
+    public static function routeAlternates(string $name, array $parameters = []): array
+    {
+        return static::alternates(fn (string $locale) => static::route($name, $parameters, $locale));
+    }
+
+    /** Client-confirmed business fact from config/autostvabaks.php ("facts.*"). */
+    public static function fact(string $key, mixed $default = null): mixed
+    {
+        return config('autostvabaks.facts.'.$key, $default);
+    }
+
+    public static function legalEntity(): string
+    {
+        return static::setting('operator_name', (string) static::fact('legal_entity'));
+    }
+
+    /** True once a contact channel (phone, whatsapp, telegram) has a public value. */
+    public static function hasChannel(string $channel): bool
+    {
+        return match ($channel) {
+            'phone' => static::phoneHref() !== null,
+            'whatsapp' => static::whatsappUrl() !== null,
+            'telegram' => static::telegramUrl() !== null,
+            default => static::setting($channel) !== null,
+        };
+    }
+
+    public static function isProductionHost(): bool
+    {
+        return parse_url((string) config('app.url'), PHP_URL_HOST) === config('autostvabaks.production_host');
+    }
+
     /** Home page URL with an anchor, e.g. Site::anchor('kkk'). */
     public static function anchor(string $id, ?string $locale = null): string
     {

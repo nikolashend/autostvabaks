@@ -7,6 +7,8 @@
     $metaDescription = $metaDescription ?? __('site.meta.description');
     $canonical = $alternates[$currentLocale] ?? url()->current();
     $ogImage = asset('assets/imgs/hero/hero.jpg');
+    // Swiper only serves the reviews carousel: skip it entirely when there is nothing to show.
+    $needsSwiper = isset($testimonials) && $testimonials->isNotEmpty();
 @endphp
 <!doctype html>
 <html lang="{{ $currentLocale }}" data-bs-theme="light">
@@ -15,8 +17,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $metaTitle }}</title>
     <meta name="description" content="{{ $metaDescription }}">
-    <meta name="theme-color" content="#101010">
-    @if (isset($noindex) || config('autostvabaks.noindex'))<meta name="robots" content="noindex, nofollow">@endif
+    <meta name="theme-color" content="{{ config('autostvabaks.brand.ink') }}">
+    @if (! empty($noindex) || config('autostvabaks.noindex'))<meta name="robots" content="noindex, nofollow">@endif
 
     <link rel="canonical" href="{{ $canonical }}">
     @foreach ($alternates as $code => $href)
@@ -43,7 +45,9 @@
 
     {{-- Carento theme (only the parts this site uses) + project styles --}}
     <link href="{{ Site::asset('assets/css/vendors/bootstrap.min.css') }}" rel="stylesheet">
-    <link href="{{ Site::asset('assets/css/plugins/swiper-bundle.min.css') }}" rel="stylesheet">
+    @if ($needsSwiper)
+        <link href="{{ Site::asset('assets/css/plugins/swiper-bundle.min.css') }}" rel="stylesheet">
+    @endif
     <link href="{{ Site::asset('assets/css/theme.css') }}" rel="stylesheet">
     <link href="{{ Site::asset('assets/css/autostvabaks.css') }}" rel="stylesheet">
 
@@ -67,7 +71,9 @@
     @stack('modals')
 
     <script src="{{ Site::asset('assets/js/bootstrap.bundle.min.js') }}" defer></script>
-    <script src="{{ Site::asset('assets/js/swiper-bundle.min.js') }}" defer></script>
+    @if ($needsSwiper)
+        <script src="{{ Site::asset('assets/js/swiper-bundle.min.js') }}" defer></script>
+    @endif
     @stack('scripts')
     <script src="{{ Site::asset('assets/js/autostvabaks.js') }}" defer></script>
 </body>

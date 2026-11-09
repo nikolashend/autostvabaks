@@ -36,7 +36,24 @@ class LeadController extends Controller
 
         $data = $request->validated();
 
-        $lead = Lead::create([
+        // Double click / retry after a slow response: the same car + e-mail within two
+        // minutes is one request, so no duplicate record and no duplicate e-mail.
+        $duplicate = Lead::query()
+            ->where('reg_number', $data['reg_number'])
+            ->where('email', $data['email'])
+            ->where('created_at', '>=', now()->subMinutes(2))
+            ->exists();
+
+        if ($duplicate) {
+            return response()->json($success);
+        }
+
+        $attribution = [];
+        foreach (Lead::ATTRIBUTION_FIELDS as $field) {
+            $attribution[$field] = Str::limit(trim((string) ($data[$field] ?? '')), 200, '') ?: null;
+        }
+
+        $lead = Lead::create($attribution + [
             'reg_number' => $data['reg_number'],
             'phone' => $data['phone'],
             'email' => $data['email'],

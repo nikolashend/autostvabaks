@@ -260,7 +260,8 @@
                     <div class="asv-section__head mb-4">
                         <p class="asv-eyebrow">{{ __('site.contact.eyebrow') }}</p>
                         <h2>{{ __('site.contact.title') }}</h2>
-                        <p class="asv-lead-text">{{ __('site.contact.lead') }}</p>
+                        {{-- "write or call" only once a public phone number exists (phone = PENDING until then) --}}
+                        <p class="asv-lead-text">{{ __($phone ? 'site.contact.lead_with_phone' : 'site.contact.lead') }}</p>
                     </div>
 
                     <ul class="asv-contacts">
@@ -306,9 +307,14 @@
                 </div>
 
                 <div class="col-lg-7">
-                    <div class="asv-map">
-                        <iframe src="{{ Site::mapEmbedUrl() }}" title="{{ __('site.contact.map_title') }}" loading="lazy"
-                                referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+                    {{-- Click-to-load map: the Google iframe (≈16 requests) is only fetched on request --}}
+                    <div class="asv-map" data-map-src="{{ Site::mapEmbedUrl() }}" data-map-title="{{ __('site.contact.map_title') }}">
+                        <button class="asv-map__load" type="button" data-map-load>
+                            <span class="asv-map__pin"><x-asv-icon name="map-pin" size="28" /></span>
+                            <strong>{{ $address }}</strong>
+                            <span class="btn btn-brand-2">{{ __('site.contact.load_map') }}</span>
+                            <small>{{ __('site.contact.load_map_note') }}</small>
+                        </button>
                     </div>
                     <a class="asv-map__link" href="{{ Site::mapLinkUrl() }}" target="_blank" rel="noopener">{{ __('site.contact.open_map') }} <x-asv-icon name="arrow-right" size="14" /></a>
                 </div>

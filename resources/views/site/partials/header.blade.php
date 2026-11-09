@@ -40,7 +40,7 @@
                     @endif
 
                     <div class="dropdown asv-lang">
-                        <button class="asv-lang__toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="{{ __('site.nav.language') }}">
+                        <button class="asv-lang__toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="{{ __('site.nav.language') }}: {{ $locales[$currentLocale]['short'] }}">
                             <x-asv-icon name="globe" size="18" />
                             <span>{{ $locales[$currentLocale]['short'] }}</span>
                             <x-asv-icon name="chevron-down" size="14" />
