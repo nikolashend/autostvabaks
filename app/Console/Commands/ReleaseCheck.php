@@ -113,7 +113,15 @@ class ReleaseCheck extends Command
     private function render(string $url): ?string
     {
         try {
-            $request = \Illuminate\Http\Request::create($url, 'GET', server: ['HTTP_ACCEPT' => 'text/html']);
+            $server = ['HTTP_ACCEPT' => 'text/html'];
+
+            // Staging is behind Basic Auth: pass the configured credentials to the internal request.
+            $auth = (string) config('autostvabaks.staging_auth');
+            if (str_contains($auth, ':')) {
+                [$server['PHP_AUTH_USER'], $server['PHP_AUTH_PW']] = explode(':', $auth, 2);
+            }
+
+            $request = \Illuminate\Http\Request::create($url, 'GET', server: $server);
             $response = app()->handle($request);
 
             return $response->getStatusCode() === 200 ? (string) $response->getContent() : null;
