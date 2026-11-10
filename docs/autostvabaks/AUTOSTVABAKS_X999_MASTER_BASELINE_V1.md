@@ -1,6 +1,6 @@
 # AUTOSTVABAKS — X999 MASTER BASELINE V1
 
-**Status: FROZEN (Stage 1, 2026-11-09).** Every later task (Stage 2–5) starts by reading this file. It is the project constitution: change it only by a deliberate, documented decision (append to `AUTOSTVABAKS_ARCHITECTURE_DECISIONS_V1.md`).
+**Status: FROZEN (Stage 1, 2026-11-09; §2, §11, §13, §15 amended by Stage 2 on 2026-11-10 per ADR-17…22).** Every later task (Stage 3–5) starts by reading this file. It is the project constitution: change it only by a deliberate, documented decision (append to `AUTOSTVABAKS_ARCHITECTURE_DECISIONS_V1.md`).
 
 ## 1. Identity
 
@@ -24,7 +24,7 @@ Motion Motors branding must not dominate marketing UI; it appears in Privacy/Ter
 
 ## 2. Stack (do not rebuild)
 
-Laravel 12 · PHP 8.2 (local) / 8.3 (hosting) · MySQL 8 (local) / 5.7 (hosting) · Filament 3 admin at `/admin` · Bootstrap 5 + Carento `theme.css` + own `autostvabaks.css/js` · Swiper (reviews only, loaded conditionally). No Vite build step is required for the public site. Tests: PHPUnit (SQLite in-memory), `php artisan test`.
+Laravel 12 · PHP 8.2 (local) / 8.3 (hosting) · MySQL 8 (local) / 5.7 (hosting) · Filament 3 admin at `/admin` · public frontend = own design system `public/assets/css/autostvabaks.css` + `autostvabaks.js` on a purged Bootstrap 5 subset (`scripts/purge-bootstrap.cjs`; grid/modal/collapse/dropdown only) · Swiper only for > 3 real reviews · Carento `theme.css` and template assets removed (Stage 2, ADR-18). No Vite build step is required for the public site. Tests: PHPUnit (SQLite in-memory), `php artisan test`.
 
 ## 3. Route & URL architecture (FROZEN)
 
@@ -84,7 +84,7 @@ Reviews section renders only with ≥1 real published review; Swiper CSS/JS load
 
 ## 11. Performance targets
 
-LCP ≤ 2.5 s · INP < 200 ms · CLS < 0.1 (stretch ≤ 0.05). Baseline and current numbers: `AUTOSTVABAKS_CURRENT_STATE_AUDIT_V1.md`. Premium appearance beats an arbitrary PSI 100. Map is click-to-load; Google Fonts stays until Stage 2 self-hosting decision.
+LCP ≤ 2.5 s · INP < 200 ms · CLS < 0.1 (stretch ≤ 0.05). Baseline numbers: `AUTOSTVABAKS_CURRENT_STATE_AUDIT_V1.md`; Stage 2 numbers: `AUTOSTVABAKS_STAGE2_REPORT.md` §10. Premium appearance beats an arbitrary PSI 100. Map is click-to-load; fonts are self-hosted (ADR-19) — zero third-party requests before user interaction.
 
 ## 12. Analytics contract (no PII)
 
@@ -94,7 +94,7 @@ Never send: plate, phone, e-mail, free text, file names, images. No analytics ve
 
 ## 13. Brand / design tokens
 
-Prototype palette (lime `#70f46d` on `#101010`) is **temporary**. Approved direction: magenta `#E6007E`, graphite `#141414`, white. Tokens: `:root --asv-color-*` in `public/assets/css/autostvabaks.css` + `config('autostvabaks.brand')` (admin colour, theme-color). Logo is a text/inline-SVG placeholder in `resources/views/site/partials/logo.blade.php`. Approved SVG assets: not in repository yet (`brand.assets_status = PENDING`). Stage 2 applies the brand by changing tokens + logo partial only.
+**Applied (Stage 2, ADR-17).** Approved identity from `resources/brand/source/svg` (Oleg, 2026-10-27): magenta `#E6007E`, graphite `#141414`, white. Tokens: `:root --asv-brand-primary / --asv-brand-dark / --asv-surface* / --asv-text* / --asv-border* / --asv-success / --asv-warning / --asv-danger / --asv-focus` in `public/assets/css/autostvabaks.css` + `config('autostvabaks.brand')` (admin colour, theme-color, logo paths). Text-sized magenta: `--asv-brand-text` (#C9006E, light surfaces) and `--asv-brand-primary-on-dark` (#FF4FAE, graphite) — contrast first. Logo: `<x-asv-logo variant="dark|light">` → `public/assets/imgs/brand/logo.svg | logo-white.svg`; favicon = split "a" glyph. Magenta is an accent for brand/conversion moments, never a surface colour (no "pink site"). Lime no longer exists in the public frontend (`BrandFrontendTest`).
 
 ## 14. Out of scope (all stages until re-decided)
 
@@ -102,4 +102,8 @@ Telegram bot, reminders, CRM, registry API, Google Ads setup, city/model SEO pag
 
 ## 15. Stage-2 protected strengths (do not regress)
 
-Hero form above the fold on all viewports · 2-step flow with retained data · ET/RU/EN parity · per-field localized errors · private photos · mail-failure resilience · conditional contacts · reciprocal hreflang · production simulation test · release gate · accessibility 100 (Lighthouse) · zero third-party requests before user action except Google Fonts.
+Hero form above the fold on all viewports · 2-step flow with retained data · ET/RU/EN parity · per-field localized errors · private photos · mail-failure resilience · conditional contacts · reciprocal hreflang · production simulation test · release gate · accessibility 100 (Lighthouse) · zero third-party requests before user action (fonts self-hosted since Stage 2).
+
+## 16. Stage-2 protected strengths (added 2026-11-10; do not regress in Stage 3+)
+
+Approved logo component and tokens · hero composition copy → form → fact strip (desktop) / H1 → form → facts → visual (mobile) · valuation transparency section (`#hindamine`) · direct-answer cards (`#vastused`: leasing, damaged, payment) · success state with "what happens next" · mobile sticky CTA (`[data-sticky-cta]`) · reviews grid for 1–3, Swiper only > 3 · no `theme.css`, Bootstrap subset regenerated by `scripts/purge-bootstrap.cjs` · Lighthouse (local, no gzip) mobile ≥ 90 / desktop 100 / a11y 100 · `BrandFrontendTest` green.

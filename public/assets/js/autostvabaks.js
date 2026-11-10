@@ -46,12 +46,41 @@
    * ------------------------------------------------------------------ */
   var header = $('.asv-header');
   var onScroll = function () {
-    if (header) header.classList.toggle('stick', window.scrollY > 40);
+    if (header) header.classList.toggle('is-stuck', window.scrollY > 24);
     // lets the floating WhatsApp / Telegram buttons appear below the first screen on mobile
     document.body.classList.toggle('asv-scrolled', window.scrollY > 320);
   };
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
+
+  /* ------------------------------------------------------------------ *
+   * Mobile sticky CTA: visible only while the hero form is out of view and
+   * the footer is not; CSS hides it while the modal / menu is open.
+   * ------------------------------------------------------------------ */
+  var sticky = $('[data-sticky-cta]');
+  var stickyForm = $('#lead-step1');
+  var stickyFooter = $('.asv-footer');
+  if (sticky && stickyForm && 'IntersectionObserver' in window) {
+    var formVisible = true;
+    var footerVisible = false;
+    var stickyLink = $('a', sticky);
+    var updateSticky = function () {
+      var show = !formVisible && !footerVisible;
+      sticky.classList.toggle('is-visible', show);
+      sticky.setAttribute('aria-hidden', show ? 'false' : 'true');
+      if (stickyLink) stickyLink.tabIndex = show ? 0 : -1;
+    };
+    new IntersectionObserver(function (entries) {
+      formVisible = entries[0].isIntersecting;
+      updateSticky();
+    }, { rootMargin: '-56px 0px 0px 0px', threshold: 0.05 }).observe(stickyForm);
+    if (stickyFooter) {
+      new IntersectionObserver(function (entries) {
+        footerVisible = entries[0].isIntersecting;
+        updateSticky();
+      }, { threshold: 0.1 }).observe(stickyFooter);
+    }
+  }
 
   /* ------------------------------------------------------------------ *
    * Mobile menu
@@ -89,7 +118,8 @@
   $$('[data-focus-form]').forEach(function (link) {
     link.addEventListener('click', function () {
       var zone = link.closest('section, header, footer');
-      track('buyback_cta_click', { cta_location: zone ? (zone.id || zone.tagName.toLowerCase()) : 'page' });
+      var location = link.getAttribute('data-cta-location') || (zone ? (zone.id || zone.getAttribute('aria-labelledby') || zone.tagName.toLowerCase()) : 'page');
+      track('buyback_cta_click', { cta_location: location });
       var reg = $('#lead-reg');
       if (!reg) return; // inner page – the link simply navigates to the landing page
       setTimeout(function () { reg.focus({ preventScroll: true }); }, 450);
@@ -101,7 +131,7 @@
    * ------------------------------------------------------------------ */
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if ('IntersectionObserver' in window && !reduceMotion) {
-    var revealTargets = $$('.asv-section__head, .asv-step, .asv-benefit, .asv-reviews, .asv-faq .accordion-item, .asv-contacts, .asv-map');
+    var revealTargets = $$('.asv-section__head, .asv-step, .asv-benefit, .asv-factor, .asv-answer, .asv-review, .asv-faq .accordion-item, .asv-location, .asv-map, .asv-final');
     var observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
@@ -150,7 +180,8 @@
   });
 
   /* ------------------------------------------------------------------ *
-   * Testimonials carousel: one review on screen, switchable
+   * Reviews carousel – only rendered (and Swiper only loaded) with more
+   * than three real reviews; 1–3 reviews are a plain grid.
    * ------------------------------------------------------------------ */
   function initReviews() {
     var slider = $('.asv-reviews__slider');
@@ -158,12 +189,12 @@
 
     new Swiper(slider, {
       slidesPerView: 1,
-      spaceBetween: 24,
-      autoHeight: true,
+      spaceBetween: 20,
       watchOverflow: true,
       keyboard: { enabled: true, onlyInViewport: true },
       navigation: { prevEl: '.asv-reviews__nav--prev', nextEl: '.asv-reviews__nav--next' },
-      pagination: { el: '.asv-reviews__dots', clickable: true }
+      pagination: { el: '.asv-reviews__dots', clickable: true },
+      breakpoints: { 768: { slidesPerView: 2 }, 992: { slidesPerView: 3 } }
     });
   }
 
@@ -389,9 +420,7 @@
       });
     }
 
-    photoInput.addEventListener('change', function () {
-      var chosen = Array.prototype.slice.call(photoInput.files || []);
-      photoInput.value = ''; // allow picking the same file again after removing it
+    function addPhotos(chosen) {
       if (!chosen.length) return;
 
       var error = '';
@@ -416,7 +445,28 @@
         setError('photos', error);
         renderPhotos();
       });
+    }
+
+    photoInput.addEventListener('change', function () {
+      var chosen = Array.prototype.slice.call(photoInput.files || []);
+      photoInput.value = ''; // allow picking the same file again after removing it
+      addPhotos(chosen);
     });
+
+    // Drag & drop onto the photo zone (desktop); the file dialog stays the primary path.
+    var dropZone = $('.asv-photos__add', step2);
+    if (dropZone) {
+      ['dragenter', 'dragover'].forEach(function (type) {
+        dropZone.addEventListener(type, function (e) { e.preventDefault(); dropZone.classList.add('is-dragover'); });
+      });
+      ['dragleave', 'drop'].forEach(function (type) {
+        dropZone.addEventListener(type, function () { dropZone.classList.remove('is-dragover'); });
+      });
+      dropZone.addEventListener('drop', function (e) {
+        e.preventDefault();
+        addPhotos(Array.prototype.slice.call((e.dataTransfer && e.dataTransfer.files) || []));
+      });
+    }
 
     /* ----- step 2: send ----- */
 

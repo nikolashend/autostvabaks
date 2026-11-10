@@ -55,17 +55,20 @@ return [
     |--------------------------------------------------------------------------
     | Brand / design tokens
     |--------------------------------------------------------------------------
-    | The prototype palette (lime #70f46d on #101010) is NOT the approved brand.
-    | Approved brand direction: magenta #E6007E, graphite #141414, white — to be
-    | applied in Stage 2 from the approved SVG logo files. CSS reads the same
-    | tokens from :root in public/assets/css/autostvabaks.css; the admin panel
-    | and <meta name="theme-color"> read them from here.
+    | Approved identity (Stage 2): the colour values are read from the approved
+    | SVG logo files in resources/brand/source/svg (magenta #E6007E, graphite
+    | #141414, white). CSS carries the same values as :root tokens in
+    | public/assets/css/autostvabaks.css; the admin panel and <meta
+    | name="theme-color"> read them from here. Web logo files:
+    | public/assets/imgs/brand/{logo.svg, logo-white.svg, favicon.svg}.
     */
     'brand' => [
-        'primary' => env('BRAND_PRIMARY', '#70f46d'),
-        'ink' => env('BRAND_INK', '#101010'),
+        'primary' => env('BRAND_PRIMARY', '#E6007E'),
+        'ink' => env('BRAND_INK', '#141414'),
         'approved' => ['primary' => '#E6007E', 'ink' => '#141414', 'surface' => '#FFFFFF'],
-        'assets_status' => 'PENDING', // approved SVG logo / favicon not yet in the repository
+        'assets_status' => 'APPLIED', // resources/brand/source (originals) + public/assets/imgs/brand (web)
+        'logo' => 'assets/imgs/brand/logo.svg',
+        'logo_light' => 'assets/imgs/brand/logo-white.svg',
     ],
 
     'locales' => [

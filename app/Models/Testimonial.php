@@ -42,9 +42,10 @@ class Testimonial extends Model
         }
 
         foreach (config('autostvabaks.placeholder_markers', []) as $marker) {
-            $query->where('author', 'not like', '%'.$marker.'%')
-                ->where('title', 'not like', '%'.$marker.'%')
-                ->where('text', 'not like', '%'.$marker.'%');
+            // NULL columns (a review without a title) must not be filtered out: "NULL NOT LIKE x" is NULL, not true.
+            foreach (['author', 'title', 'text'] as $column) {
+                $query->where(fn (Builder $q) => $q->whereNull($column)->orWhere($column, 'not like', '%'.$marker.'%'));
+            }
         }
 
         return $query;

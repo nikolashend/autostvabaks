@@ -7,14 +7,14 @@
     $metaDescription = $metaDescription ?? __('site.meta.description');
     $canonical = $alternates[$currentLocale] ?? url()->current();
     $ogImage = asset('assets/imgs/hero/hero.jpg');
-    // Swiper only serves the reviews carousel: skip it entirely when there is nothing to show.
-    $needsSwiper = isset($testimonials) && $testimonials->isNotEmpty();
+    // Swiper only serves the reviews carousel and only when there are more reviews than fit in the grid.
+    $needsSwiper = isset($testimonials) && $testimonials->count() > 3;
 @endphp
 <!doctype html>
 <html lang="{{ $currentLocale }}" data-bs-theme="light">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>{{ $metaTitle }}</title>
     <meta name="description" content="{{ $metaDescription }}">
     <meta name="theme-color" content="{{ config('autostvabaks.brand.ink') }}">
@@ -39,16 +39,15 @@
 
     <link rel="icon" type="image/svg+xml" href="{{ Site::asset('assets/imgs/brand/favicon.svg') }}">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400..800&display=swap" rel="stylesheet">
+    {{-- Fonts are self-hosted (public/assets/fonts); the Latin subset is used by every page --}}
+    {{-- same URL as the @font-face src (no cache-busting query), otherwise the font is fetched twice --}}
+    <link rel="preload" as="font" type="font/woff2" href="{{ asset('assets/fonts/urbanist-latin.woff2') }}" crossorigin>
 
-    {{-- Carento theme (only the parts this site uses) + project styles --}}
+    {{-- Bootstrap (grid, modal, collapse, dropdown) + the Autostvabaks design system --}}
     <link href="{{ Site::asset('assets/css/vendors/bootstrap.min.css') }}" rel="stylesheet">
     @if ($needsSwiper)
         <link href="{{ Site::asset('assets/css/plugins/swiper-bundle.min.css') }}" rel="stylesheet">
     @endif
-    <link href="{{ Site::asset('assets/css/theme.css') }}" rel="stylesheet">
     <link href="{{ Site::asset('assets/css/autostvabaks.css') }}" rel="stylesheet">
 
     @stack('head')
@@ -61,12 +60,15 @@
 
     @include('site.partials.header')
 
-    <main class="main" id="main">
+    <main id="main">
         @yield('content')
     </main>
 
     @include('site.partials.footer')
     @include('site.partials.quick-contact')
+    @if ($isHome)
+        @include('site.partials.sticky-cta')
+    @endif
 
     @stack('modals')
 

@@ -25,13 +25,26 @@ return [
         'eyebrow' => 'We buy cars all over Estonia',
         'title' => 'Sell your car quickly and easily',
         'subtitle' => 'Fill in a short request and get an offer for your car. We buy cars in any condition.',
-        'ticks' => ['Cars in any condition', 'All over Estonia', 'Bank transfer or cash'],
+        'ticks' => ['Cars in any condition', 'Leased or financed cars too', 'All over Estonia', 'Bank transfer or cash'],
+    ],
+
+    'trust' => [
+        'aria' => 'Key facts',
+        'items' => [
+            ['title' => 'All over Estonia', 'text' => 'Not only Tallinn and Harju County'],
+            ['title' => 'Any condition', 'text' => 'Including faulty and damaged cars'],
+            ['title' => 'Leasing or loan', 'text' => 'You can send a request for such a car too'],
+            ['title' => 'Bank transfer or cash', 'text' => 'Paid when the deal is completed'],
+        ],
     ],
 
     'form' => [
         'title' => 'Get an offer for your car',
+        'step' => 'Step :n of :total',
         'reg' => 'Registration number',
         'reg_placeholder' => '123ABC',
+        'reg_hint' => 'Spaces and dashes do not matter.',
+        'price_hint' => 'Optional – if you have a price in mind, let us know.',
         'phone' => 'Phone number',
         'phone_placeholder' => '+372 5xxx xxxx',
         'email' => 'E-mail',
@@ -56,15 +69,22 @@ return [
         'info' => 'Additional information',
         'info_placeholder' => 'Additional information about the car...',
         'info_hint' => 'For example: condition, equipment, damage, number of owners, service history, extras.',
-        'photos' => 'Add photos',
-        'photos_button' => 'Choose photos',
-        'photos_hint' => 'JPG, PNG or WEBP · up to :max photos',
+        'photos' => 'Photos',
+        'photos_button' => 'Add photos',
+        'photos_hint' => 'JPG, PNG or WEBP · up to :max photos · up to :mb MB each',
+        'photos_why' => 'Photos help us evaluate your car more precisely.',
         'photo_remove' => 'Remove photo',
         'photo_alt' => 'Photo :n',
         'submit' => 'Send request',
         'sending' => 'Sending…',
         'success_title' => 'Thank you! Your request has been sent.',
         'success_text' => 'We will contact you as soon as possible.',
+        'success_next_title' => 'What happens next?',
+        'success_next' => [
+            'We review your request and the car details.',
+            'We contact you by e-mail or phone, as given in the request.',
+            'We agree on a time and place to inspect the car.',
+        ],
     ],
 
     'errors' => [
@@ -102,11 +122,62 @@ return [
         'title' => 'Why sell your car to us?',
         'lead' => 'We make selling your car as simple as possible – no ads, no endless phone calls, no wasted time.',
         'items' => [
-            ['title' => 'We buy any car', 'text' => 'Make, age and condition are not an obstacle – we also buy faulty and damaged cars.'],
+            ['title' => 'No ads, no calls from strangers', 'text' => 'One request to us replaces the listing, the test drives and the haggling with unknown buyers.'],
             ['title' => 'All over Estonia', 'text' => 'We work across the whole country, not only in Tallinn and Harju County.'],
-            ['title' => 'Quick reply', 'text' => 'We review every request and get back to you as soon as possible.'],
-            ['title' => 'Secure payment', 'text' => 'You are paid by bank transfer or, if you prefer, in cash.'],
+            ['title' => 'Any condition, leasing included', 'text' => 'Make, age and condition are not an obstacle – we also buy faulty, damaged, leased or financed cars.'],
+            ['title' => 'A clear deal', 'text' => 'We complete the paperwork and pay by bank transfer or, if you prefer, in cash.'],
         ],
+    ],
+
+    'valuation' => [
+        'eyebrow' => 'Valuation',
+        'title' => 'What affects the offer?',
+        'answer' => 'The offer depends on the market value of the car and its actual condition. When evaluating, we look at the following:',
+        'factors' => [
+            ['title' => 'Make, model and year', 'text' => 'As well as engine and gearbox.'],
+            ['title' => 'Mileage', 'text' => 'Actual mileage and how it matches the age.'],
+            ['title' => 'Technical condition', 'text' => 'Engine, gearbox, suspension, brakes.'],
+            ['title' => 'Damage', 'text' => 'Accidents, rust, body and interior damage.'],
+            ['title' => 'Equipment', 'text' => 'Extras and completeness.'],
+            ['title' => 'Service history', 'text' => 'Service book, invoices, inspection.'],
+            ['title' => 'Market demand', 'text' => 'How quickly similar cars sell in Estonia.'],
+        ],
+        'note' => 'Not sure what your car is worth? No problem – the desired price in the request is optional.',
+        'cta' => 'Ask for an offer',
+    ],
+
+    'answers' => [
+        'eyebrow' => 'Answers',
+        'title' => 'Leasing, damage and payment',
+        'items' => [
+            [
+                'question' => 'Do you buy a car that is leased or financed?',
+                'answer' => 'Yes. You can send a request for a car that is under leasing or a loan.',
+                'detail' => 'Mention the leasing company or bank in the additional information – we clarify the next steps together with you.',
+            ],
+            [
+                'question' => 'Do you buy a damaged or faulty car?',
+                'answer' => 'Yes. We also buy faulty and damaged cars.',
+                'detail' => 'Describe the damage in the additional information and add photos – that way we can make a more precise offer.',
+            ],
+            [
+                'question' => 'How do I get paid?',
+                'answer' => 'By bank transfer or in cash – your choice.',
+                'detail' => 'Payment is made when the deal is completed.',
+            ],
+        ],
+        'cta' => 'Start request',
+    ],
+
+    'final' => [
+        'title' => 'Ready to sell your car?',
+        'text' => 'Fill in a short request – it takes a couple of minutes. We will contact you as soon as possible.',
+        'cta' => 'Start request',
+    ],
+
+    'sticky' => [
+        'cta' => 'Start request',
+        'note' => 'Takes a couple of minutes',
     ],
 
     'testimonials' => [

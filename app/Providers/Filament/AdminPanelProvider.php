@@ -31,6 +31,8 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->profile()
             ->brandName('Autostvabaks')
+            ->brandLogo(asset(config('autostvabaks.brand.logo')))
+            ->brandLogoHeight('1.75rem')
             ->favicon(asset('assets/imgs/brand/favicon.svg'))
             ->colors([
                 // Same token as the public site (config/autostvabaks.php → brand.primary)

@@ -2,6 +2,8 @@
 
 Baseline screenshots: `docs/autostvabaks/baseline/pre-stage1/`. Priorities: P1 = fix in Stage 2 first, P2 = polish, P3 = later/optional.
 
+**Stage 2 status (2026-11-10, evidence in `baseline/post-stage2/`):** G1 CLOSED (approved logo + magenta/graphite tokens, template look replaced) · G2 PARTIAL (new composition, mobile hierarchy; image itself still temporary → brief in `AUTOSTVABAKS_STAGE2_REPORT.md` §13) · G3 CLOSED for Stage 2 (fact strip, objection-based "why", location card; real photos pending) · G4 CLOSED (valuation section + answer cards for leasing/damaged/payment; documents slot reserved) · G5 CLOSED (grid 1–3, slider > 3) · G6 CLOSED (sticky CTA) · G7 CLOSED (type scale tokens, self-hosted fonts) · G8 CLOSED (timeline markers, vertical on phones) · G9 PARTIAL (clean footer; legal-entity line still needs client confirmation) · G10 OPEN (client assets) · G11 CLOSED (`theme.css` removed, Bootstrap purged) · G12 OPEN (P3) · G13 CLOSED (what-happens-next) · G14 CLOSED (restyled).
+
 ## 1. What is already strong (PRESERVE)
 
 - Form in the hero on every viewport; step 1 is 4 fields + consent; step 2 modal keeps data on Back.

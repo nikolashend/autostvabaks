@@ -6,10 +6,6 @@
 
 @section('content')
     <div class="asv-page-head">
-        <picture class="asv-page-head__bg" aria-hidden="true">
-            <source type="image/webp" srcset="{{ asset('assets/imgs/page-header/banner.webp') }}">
-            <img src="{{ asset('assets/imgs/page-header/banner.jpg') }}" alt="" decoding="async">
-        </picture>
         <div class="container">
             <nav class="asv-breadcrumb" aria-label="breadcrumb">
                 <a href="{{ Site::route('home') }}">{{ __('site.nav.home') }}</a>
@@ -34,7 +30,7 @@
                     <h2>{{ __('site.page.cta_title') }}</h2>
                     <p>{{ __('site.page.cta_text') }}</p>
                 </div>
-                <a class="btn btn-brand-2" href="{{ Site::anchor('paring') }}">{{ __('site.nav.cta') }} <x-asv-icon name="arrow-right" size="16" /></a>
+                <a class="asv-btn asv-btn--primary asv-btn--lg" href="{{ Site::anchor('paring') }}">{{ __('site.nav.cta') }} <x-asv-icon name="arrow-right" size="18" class="asv-icon--arrow" /></a>
             </aside>
         </div>
     </section>

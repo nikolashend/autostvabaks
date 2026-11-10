@@ -170,6 +170,21 @@ class SeoFoundationTest extends TestCase
         $html = $this->get('/')->assertOk()->getContent();
         $this->assertStringContainsString('Mari M.', $html);
         $this->assertStringNotContainsString('Kliendi nimi', $html);
+        $this->assertStringContainsString('asv-reviews--1', $html, 'a single review is laid out as a grid');
+        $this->assertStringNotContainsString('swiper-bundle', $html, 'Swiper must not load for 1–3 reviews');
+
+        // more than three reviews → carousel, and only then the Swiper assets
+        foreach (['Jaan K.', 'Anna P.', 'Toomas L.'] as $i => $author) {
+            Testimonial::create([
+                'author' => $author,
+                'text' => ['et' => 'Sujuv tehing.'],
+                'rating' => 5,
+                'sort' => $i + 2,
+                'is_active' => true,
+            ]);
+        }
+        $html = $this->get('/')->assertOk()->getContent();
+        $this->assertStringContainsString('asv-reviews--slider', $html);
         $this->assertStringContainsString('swiper-bundle', $html);
     }
 

@@ -2,22 +2,22 @@
 
 Лендинг сервиса выкупа автомобилей **autostvabaks.ee** (отдельный бренд; юридический оператор — Motion Motors OÜ, упоминается только в политике конфиденциальности).
 
-Стек: Laravel 12 · PHP 8.2 · MySQL 8 · Filament 3 (админ-панель) · HTML-тема Carento v2.1 (ThemeForest).
+Стек: Laravel 12 · PHP 8.2 · MySQL 8 · Filament 3 (админ-панель) · собственная дизайн-система `autostvabaks.css` на урезанном Bootstrap 5 (тема Carento больше не используется).
 
 ## Документация проекта (источник истины)
 
-`docs/autostvabaks/` — **любая следующая задача начинается с `AUTOSTVABAKS_X999_MASTER_BASELINE_V1.md`** (архитектура, правила SEO/индексации, форма, админка, факты, бренд, аналитика). Рядом: аудит текущего состояния, ADR, владение поисковыми интентами, реестр фактов/утверждений, матрица маршрутов/индексации, карта UI/UX-пробелов, отчёт Stage 1 и скриншоты baseline.
+`docs/autostvabaks/` — **любая следующая задача начинается с `AUTOSTVABAKS_X999_MASTER_BASELINE_V1.md`** (архитектура, правила SEO/индексации, форма, админка, факты, бренд, аналитика). Рядом: аудит текущего состояния, ADR, владение поисковыми интентами, реестр фактов/утверждений, матрица маршрутов/индексации, карта UI/UX-пробелов, отчёты Stage 1 и Stage 2 и скриншоты baseline.
 
 ## Что реализовано
 
-- **Лендинг на трёх языках** — `/` (эстонский, основной), `/ru`, `/en`. Ручной переключатель, без автоматического редиректа по языку браузера; у каждой версии свой URL для Google Ads, `hreflang`, `sitemap.xml`, JSON-LD (AutoDealer + FAQPage).
+- **Лендинг на трёх языках** — `/` (эстонский, основной), `/ru`, `/en`. Ручной переключатель, без автоматического редиректа по языку браузера; у каждой версии свой URL для Google Ads, `hreflang`, `sitemap.xml`, JSON-LD (Organization + Brand + Service + FAQPage).
 - **Двухэтапная форма заявки** прямо на первом экране:
   1. Registreerimisnumber · Telefoninumber · E-post (обязательно) · Soovitud hind (необязательно) · чекбокс согласия с условиями → **Alusta päringut** (проверка полей, заявка ещё не отправляется).
   2. Модальное окно «Sinu auto lisainfo»: Suhtluskeel (ET/RU/EN, по умолчанию = язык сайта) · Läbisõit · Lisainfo · фото (JPG/PNG/WEBP, превью, удаление, до 10 шт., сжатие в браузере до 1920px) → **Saada päring**.
   - Ошибки показываются у соответствующего поля на языке страницы; введённые данные не теряются (в т.ч. при «Tagasi»).
   - Заявка сохраняется в БД, письмо «Новая заявка — 123ABC» уходит с фото во вложении (reply-to = e-mail клиента). Если почта недоступна, заявка всё равно сохраняется, ошибка видна в админке.
   - Защита: honeypot + лимит 8 заявок / 10 мин с одного IP; фото хранятся в приватном storage и доступны только администраторам.
-- **Блоки лендинга**: 4 шага выкупа → почему мы → карусель отзывов → KKK (аккордеон) → контакты + Google Maps (Meistri 20, Tallinn) → футер (4 колонки, tel:/mailto:). Плавающие кнопки WhatsApp/Telegram.
+- **Блоки лендинга**: hero с формой и полосой фактов → 4 шага → почему мы (ответы на возражения) → что влияет на предложение → ответы: лизинг / повреждения / оплата → отзывы (только реальные; 1–3 сеткой, >3 — карусель) → KKK → локация + карта по клику → финальный CTA → футер. На телефонах — sticky-кнопка «Alusta päringut». Плавающие WhatsApp/Telegram появляются только при заполненных настройках.
 - **Админ-панель** `/admin` (на русском): Заявки (просмотр, фото, удаление, без статусов/CRM) · Отзывы · Вопросы и ответы · Страницы (ET/RU/EN, свой URL на каждом языке, автоматически попадают в футер) · Настройки (телефон, WhatsApp, Telegram, e-mail'ы, адрес/карта, код аналитики) · Администраторы.
 - Юридические страницы *Kasutustingimused* и *Privaatsuspoliitika* — **черновики-заготовки**, помечены как Mustand; заменить финальным текстом в админке.
 
@@ -43,12 +43,14 @@ php artisan serve --port=8010
 | Что | Где |
 |---|---|
 | Тексты интерфейса, шагов и преимуществ (черновые) | `lang/et/site.php`, `lang/ru/site.php`, `lang/en/site.php` |
-| Цвета бренда | `public/assets/css/autostvabaks.css` → `:root` (`--bs-brand-2` и далее) |
-| Логотип (сейчас текстовая заглушка) | `resources/views/site/partials/logo.blade.php` — один файл для шапки, мобильного меню и футера |
-| Фон первого экрана | `public/assets/imgs/hero/hero.webp|jpg`, `hero-mobile.webp|jpg` |
+| Цвета бренда / токены | `public/assets/css/autostvabaks.css` → `:root` (`--asv-brand-primary`, `--asv-brand-dark`, …) и `config/autostvabaks.php` → `brand` (админка, theme-color) |
+| Логотип | компонент `resources/views/components/asv-logo.blade.php` → `public/assets/imgs/brand/logo.svg` (светлый фон) / `logo-white.svg` (тёмный). Оригиналы Олега — `resources/brand/source/` (не редактировать) |
+| Фон первого экрана (временный) | `public/assets/imgs/hero/hero.webp|jpg` (десктоп), `hero-mobile.webp|jpg` (телефоны, под формой). Бриф на замену — отчёт Stage 2 §13 |
+| Шрифты | `public/assets/fonts/` — Urbanist (latin, latin-ext) + Manrope (кириллица), self-hosted |
+| Bootstrap | `public/assets/css/vendors/bootstrap.min.css` — урезанная сборка; после добавления новых bootstrap-классов пересобрать: `node scripts/purge-bootstrap.cjs <полный bootstrap.min.css> <url …>` (см. шапку скрипта) |
 | Лимиты фото, адрес для заявок по умолчанию | `config/autostvabaks.php` |
 | Письмо о новой заявке | `app/Mail/NewLeadMail.php`, `resources/views/emails/new-lead*.blade.php` |
-| Тема Carento | `public/assets/css/theme.css` (main.css темы без `@import`), используются только Bootstrap, Swiper и собственный JS `public/assets/js/autostvabaks.js` |
+| Поведение страницы (форма, sticky CTA, карта, аналитика) | `public/assets/js/autostvabaks.js` (без jQuery; Bootstrap bundle + Swiper только при >3 отзывах) |
 
 Отзывы, FAQ, страницы и контакты редактируются в админке.
 
@@ -74,7 +76,7 @@ ssh autostvabaks "cd ~/www/autostvabaks.adme.ee && bash deploy.sh"
 
 ## Что ждём от клиента (не блокирует разработку)
 
-- логотип (SVG) и фирменные цвета → `logo.blade.php` + `:root` в CSS;
+- hero-фото (реальное авто/передача ключей) по брифу из отчёта Stage 2, фото локации Meistri 20;
 - телефон, WhatsApp, Telegram → админка → Настройки;
 - финальные тексты шагов, преимуществ, FAQ, отзывы, фотографии;
 - финальные Kasutustingimused / Privaatsuspoliitika (сейчас черновики);
