@@ -343,10 +343,15 @@
       modal.show();
     });
 
+    // tracked when the modal starts opening (not after the transition), so step2_view always
+    // precedes photo_add / submit in the dataLayer even for very fast users or automation
+    modalEl.addEventListener('show.bs.modal', function () {
+      if (!sent) track('buyback_form_step2_view');
+    });
+
     modalEl.addEventListener('shown.bs.modal', function () {
       var target = sent ? success : $('#lead-mileage');
       if (target) target.focus({ preventScroll: true });
-      if (!sent) track('buyback_form_step2_view');
     });
 
     // "Back" / close keeps everything the user typed; after success the forms start clean.
