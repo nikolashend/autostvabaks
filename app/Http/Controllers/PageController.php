@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Page;
-use App\Support\Site;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Str;
 

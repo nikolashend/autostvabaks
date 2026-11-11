@@ -10,7 +10,7 @@ class Faq extends Model
 {
     use HasTranslations;
 
-    protected $fillable = ['question', 'answer', 'sort', 'is_active'];
+    protected $fillable = ['key', 'question', 'answer', 'sort', 'is_active'];
 
     protected function casts(): array
     {

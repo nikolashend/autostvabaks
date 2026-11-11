@@ -19,8 +19,8 @@
 <body style="margin:0;padding:24px 12px;background:#f2f4f6;font-family:Arial,Helvetica,sans-serif;color:#101010;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;">
         <tr>
-            <td style="padding:24px 28px;background:#101010;color:#ffffff;">
-                <div style="font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#70f46d;">Autostvabaks</div>
+            <td style="padding:24px 28px;background:#141414;color:#ffffff;">
+                <div style="font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#ff4fae;">Autostvabaks</div>
                 <div style="font-size:22px;font-weight:bold;margin-top:6px;">Новая заявка на автомобиль</div>
             </td>
         </tr>
@@ -67,7 +67,7 @@
         </tr>
         <tr>
             <td style="padding:20px 28px 28px;">
-                <a href="{{ $adminUrl }}" style="display:inline-block;padding:12px 22px;background:#70f46d;color:#101010;font-weight:bold;font-size:14px;text-decoration:none;border-radius:10px;">Открыть заявку в админ-панели</a>
+                <a href="{{ $adminUrl }}" style="display:inline-block;padding:12px 22px;background:#e6007e;color:#ffffff;font-weight:bold;font-size:14px;text-decoration:none;border-radius:10px;">Открыть заявку в админ-панели</a>
             </td>
         </tr>
         <tr>

@@ -149,11 +149,47 @@ class Site
         return 'https://www.google.com/maps/search/?api=1&query='.rawurlencode((string) static::setting('map_query', static::setting('address')));
     }
 
-    /** Cache-busted URL of a file under /public. */
+    /**
+     * Cache-busted URL of a file under /public. For .css/.js sources the minified
+     * twin (name.min.ext, built by scripts/build-assets.cjs) is served when it
+     * exists and is not older than the source.
+     */
     public static function asset(string $path): string
     {
         $file = public_path($path);
 
+        if ($min = static::minifiedTwin($path)) {
+            $path = $min;
+            $file = public_path($min);
+        }
+
         return asset($path).(is_file($file) ? '?v='.filemtime($file) : '');
+    }
+
+    /** Path of the up-to-date minified twin of a .css/.js source, or null. */
+    public static function minifiedTwin(string $path): ?string
+    {
+        if (! config('autostvabaks.minified_assets', true) || str_contains($path, '.min.') || ! preg_match('/\.(css|js)$/', $path)) {
+            return null;
+        }
+
+        $min = preg_replace('/\.(css|js)$/', '.min.$1', $path);
+        $source = public_path($path);
+        $target = public_path($min);
+
+        return is_file($target) && is_file($source) && filemtime($target) >= filemtime($source) ? $min : null;
+    }
+
+    /** Production-safe social image for the current locale (brand composition, never the temporary hero photo). */
+    public static function ogImage(?string $locale = null): string
+    {
+        $locale ??= app()->getLocale();
+        $path = 'assets/imgs/brand/og-'.$locale.'.jpg';
+
+        if (! is_file(public_path($path))) {
+            $path = 'assets/imgs/brand/og-'.static::defaultLocale().'.jpg';
+        }
+
+        return asset($path);
     }
 }

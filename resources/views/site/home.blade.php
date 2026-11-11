@@ -4,7 +4,7 @@
     use App\Support\Site;
 
     $stepIcons = ['send', 'tag', 'search', 'key'];
-    $whyIcons = ['bell-off', 'map-pin', 'car', 'handshake'];
+    $whyIcons = ['bell-off', 'tag', 'car', 'handshake'];
     $factIcons = ['map-pin', 'car', 'credit-card', 'banknote'];
     $factorIcons = ['calendar', 'gauge', 'wrench', 'alert', 'sliders', 'book', 'trending'];
     $answerIcons = ['credit-card', 'alert', 'banknote'];
@@ -130,9 +130,10 @@
             </ul>
 
             {{-- Supporting visual for phones/tablets (lazy, never above the form) --}}
+            {{-- 16:9 card-sized derivative (800×450) – the 900×1200 portrait is not downloaded for a small card --}}
             <picture class="asv-hero__visual" aria-hidden="true">
-                <source type="image/webp" srcset="{{ asset('assets/imgs/hero/hero-mobile.webp') }}">
-                <img src="{{ asset('assets/imgs/hero/hero-mobile.jpg') }}" alt="" width="900" height="1200" loading="lazy" decoding="async">
+                <source type="image/webp" srcset="{{ asset('assets/imgs/hero/hero-mobile-card.webp') }}">
+                <img src="{{ asset('assets/imgs/hero/hero-mobile-card.jpg') }}" alt="" width="800" height="450" loading="lazy" decoding="async">
             </picture>
         </div>
     </section>
@@ -194,6 +195,8 @@
                     <p class="asv-eyebrow">{{ __('site.valuation.eyebrow') }}</p>
                     <h2 class="asv-h2" id="valuation-title">{{ __('site.valuation.title') }}</h2>
                     <p class="asv-valuation__answer">{{ __('site.valuation.answer') }}</p>
+                    {{-- expectation message: direct buyback = simplicity/speed; the offer follows market value, not asking prices --}}
+                    <p class="asv-valuation__expectation">{{ __('site.valuation.expectation') }}</p>
                     <p class="asv-valuation__note"><x-asv-icon name="info" size="18" /> <span>{{ __('site.valuation.note') }}</span></p>
                     <div class="asv-valuation__cta">
                         <a class="asv-btn asv-btn--primary asv-btn--lg" href="#paring" data-focus-form>{{ __('site.valuation.cta') }} <x-asv-icon name="arrow-right" size="18" class="asv-icon--arrow" /></a>
@@ -422,5 +425,5 @@
             ]),
         ];
     @endphp
-    <script>window.ASV = {{ Illuminate\Support\Js::from($leadFormConfig) }};</script>
+    <script nonce="{{ \App\Support\Csp::nonce() }}">window.ASV = {{ Illuminate\Support\Js::from($leadFormConfig) }};</script>
 @endpush

@@ -22,7 +22,8 @@
     <section class="asv-section asv-section--page">
         <div class="container">
             <article class="asv-prose">
-                {!! $page->t('content') !!}
+                {{-- admin rich text passes the allow-list sanitiser on save and again here (legacy rows) --}}
+                {!! \App\Support\HtmlSanitizer::clean($page->t('content')) !!}
             </article>
 
             <aside class="asv-page-cta">

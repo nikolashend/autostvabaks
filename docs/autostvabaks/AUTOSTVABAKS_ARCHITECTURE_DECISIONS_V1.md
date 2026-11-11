@@ -66,3 +66,34 @@ Visible only while the hero form is out of view and the footer is not; hidden by
 
 **ADR-22 — Hero visual stays temporary; replacement is specified, not generated in code.**
 The current image comes from the template package (licence not production-grade, visible Audi branding and plate). Stage 2 keeps it as a heavily graded backdrop on desktop only (phones get a lazy supporting visual below the form) and ships an exact generation/photography brief in `AUTOSTVABAKS_STAGE2_REPORT.md` §13. The hero's LCP element on mobile is now the H1, so swapping the image later carries no layout risk (fixed `aspect-ratio` slots).
+
+---
+
+*Stage 3 (2026-11-11) — content × search × AEO × trust × analytics × production-candidate hardening.*
+
+**ADR-23 — Final copy lives in `lang/{et,ru,en}/site.php`; FAQ is a keyed content release.**
+Copy is code (reviewed, tested, deployed with the build), the FAQ stays admin-editable but each agreed question has a stable `key` (`faqs.key`, migration `2026_11_11_000001`) and `FaqSeeder` upserts by key (legacy rows adopted by their ET question), so `php artisan db:seed --class=FaqSeeder --force` publishes exactly the agreed list on every host. The prohibited-claim list moved to `config('autostvabaks.prohibited_claims')` and is shared by `BrandFrontendTest` and `site:release-check`. Alternatives: FAQ in lang files (admin loses editing) or free admin FAQ (no content release, schema drift). Consequence: re-running the seeder overwrites admin edits of keyed questions — edit the seeder, not only the panel.
+
+**ADR-24 — Nonce-based CSP on public pages, report-only first; admin excluded.**
+Third-party cleanup (self-hosted fonts, click-to-load map, no Carento) made a strict policy feasible: `script-src 'self' 'nonce' 'strict-dynamic'` (+ GTM host for fallback), `style-src 'unsafe-inline'` (Bootstrap/Swiper set element styles), `img-src https:` (tag pixels), `frame-src` Google Maps/GTM, `object-src 'none'`. Every `<script>` the layout emits carries the request nonce, including `window.ASV` and admin "head scripts" (`Csp::withNonce`). `CSP_MODE=off|report-only|enforce`; Filament/Livewire routes keep the Stage-1 headers only. Local and staging runs showed zero violations through map → FAQ → form → success. Consequence: enforce after a report-only period in production; tags that inject scripts outside the nonce chain (not via GTM) will be blocked in enforce mode.
+
+**ADR-25 — Production crawler policy: everything public is crawlable, `/admin` closed, `OAI-SearchBot` allowed explicitly, `GPTBot` left at the `*` default.**
+ChatGPT search visibility must not be blocked by accident; model-training access is the client's decision (currently allowed by `*`). No `nosnippet`/`max-snippet`/`noimageindex` anywhere (release-check scans for them). No llms.txt/facts.json — crawlable HTML with self-contained answers is the AI layer.
+
+**ADR-26 — Human sign-offs are explicit release statuses, not inferred.**
+`HERO_ASSET_STATUS=temporary|approved` and `LEGAL_CONTENT_STATUS=draft|approved` in `.env`; `site:release-check` blocks on the production host (or `--strict`) unless both are `approved`, and always blocks when `og:image` / `primaryImageOfPage` point at the temporary template photo. The social image is a brand composition (`og-{et,ru,en}.jpg`, 1200×630) generated from the design tokens, so sharing never exposes the Audi/template asset. Consequence: Stage 4 cannot launch with the template hero or draft legal pages by forgetting.
+
+**ADR-27 — Lead e-mail: attachment budget 10 MB (`LEADS_MAIL_ATTACHMENTS_MAX_MB`), originals stay private in admin, e-mail carries the admin deep-link.**
+10 photos × 8 MB could produce an undeliverable 80 MB+ message. Photos are attached in order until the budget is reached; the e-mail says how many are available only in the admin panel and links to the authenticated lead page (never to `admin/lead-photo/*`). DB stays the record; mail failure still never loses the lead (test). Alternative (thumbnails only) deferred: the client reads photos in the panel.
+
+**ADR-28 — Analytics vendor = GTM container from config, environment-aware.**
+`ANALYTICS_GTM_ID` + `ANALYTICS_ENABLED` (default: production host only). The dataLayer is initialised before the container; event contract unchanged (ADR-13). No consent banner is shipped: the client must decide the consent approach (GA4 in the EU) before enabling tags — a Stage-4 launch item, not a technical blocker. `head_scripts` remains for extra snippets (nonced).
+
+**ADR-29 — Production assets: minified twins built by `scripts/build-assets.cjs` (esbuild), served by `Site::asset()` only while not older than the source; cache headers delegated to the host.**
+Readable sources stay the edit surface; the twin is regenerated and committed. Release-check warns when the twin is stale. nginx on reg.ru already serves static files gzip-compressed with a 45-day max-age; `.htaccess` adds an Apache fallback (immutable 1 year for fingerprinted assets, deflate). Brotli is not available on the host (verified: `content-encoding: gzip` for `br` requests) — not claimed.
+
+**ADR-30 — Admin rich text passes an allow-list sanitiser on save and on render.**
+`App\Support\HtmlSanitizer` (DOMDocument): headings, paragraphs, lists, links (http/https/mailto/tel/relative), basic inline formatting; drops script/style/iframe/object/embed/svg/form, every attribute except `href/title/target/rel`, `javascript:`/`data:` URLs, comments; `target=_blank` gets `rel=noopener`. Applied in `Page::saving` and in `page.blade.php`. The admin "head scripts" setting is intentionally raw (trusted operator input, nonced).
+
+**ADR-31 — H1 kept, title restructured category-first.**
+ET H1 "Müü oma auto kiirelt ja mugavalt" stays (natural, seller-promise, matches the `müü oma auto` cluster); the category `autode kokkuost üle Eesti` moves to the front of the `<title>`, stays in the eyebrow, Service schema name and footer. RU/EN titles follow the same pattern with native wording. Documented in `AUTOSTVABAKS_STAGE3_QUERY_COMPONENT_MAP.md` §4.

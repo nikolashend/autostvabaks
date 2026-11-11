@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Faq;
 use App\Models\Lead;
 use App\Models\Page;
 use App\Models\Setting;
@@ -80,7 +81,7 @@ class SeoFoundationTest extends TestCase
     {
         $page = Page::byKey('privacy');
         $groups = [
-            ['/' , '/ru', '/en'],
+            ['/', '/ru', '/en'],
             ['/'.$page->slug_et, '/ru/'.$page->slug_ru, '/en/'.$page->slug_en],
         ];
 
@@ -127,7 +128,7 @@ class SeoFoundationTest extends TestCase
         $this->assertStringNotContainsString('openingHours', $html);
 
         // Visible FAQ and FAQ schema share one source.
-        $this->assertCount(\App\Models\Faq::active()->count(), $graph['FAQPage']['mainEntity']);
+        $this->assertCount(Faq::active()->count(), $graph['FAQPage']['mainEntity']);
     }
 
     public function test_phone_appears_in_schema_and_contacts_only_once_configured(): void
@@ -239,6 +240,8 @@ class SeoFoundationTest extends TestCase
         $this->simulateProduction();
         Testimonial::query()->update(['is_active' => false]);
         Page::query()->update(['content' => ['et' => '<p>ok</p>', 'ru' => '<p>ok</p>', 'en' => '<p>ok</p>']]);
+        // Stage-3 human sign-off gates (tested separately in Stage3HardeningTest)
+        config(['autostvabaks.release.hero_asset_status' => 'approved', 'autostvabaks.release.legal_content_status' => 'approved']);
 
         $this->artisan('site:release-check')->assertSuccessful();
 

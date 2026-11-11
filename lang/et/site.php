@@ -1,13 +1,14 @@
 <?php
 
-// Avaliku lehe tekstid – eesti keel (põhikeel).
-// NB! Sammude ja eeliste tekstid on esialgsed ning asendatakse lõplike tekstidega.
+// Avaliku lehe tekstid – eesti keel (põhikeel, sisu kvaliteedi etalon).
+// Iga väide peab vastama faktiregistrile: docs/autostvabaks/AUTOSTVABAKS_FACT_CLAIM_REGISTER_V1.md
+// Lubatud ei ole: parim/kõrgeim hind, garanteeritud ost, kiireim, ajaline vastuse lubadus, välja mõeldud arvud.
 
 return [
 
     'meta' => [
-        'title' => 'Autostvabaks – autode kokkuost üle Eesti | Müü oma auto kiirelt',
-        'description' => 'Müü oma auto kiirelt ja mugavalt. Saada päring ja saa pakkumine – ostame igas seisukorras autosid üle kogu Eesti.',
+        'title' => 'Autode kokkuost üle Eesti – müü oma auto lihtsalt | Autostvabaks',
+        'description' => 'Autostvabaks ostab autosid üle kogu Eesti – igas seisukorras, ka rikkega, avariilised ja liisingus autod. Saada lühike päring ja saa pakkumine. Makse ülekandega või sularahas.',
     ],
 
     'nav' => [
@@ -24,8 +25,7 @@ return [
     'hero' => [
         'eyebrow' => 'Autode kokkuost üle Eesti',
         'title' => 'Müü oma auto kiirelt ja mugavalt',
-        'subtitle' => 'Täida lühike päring ja saa oma autole pakkumine. Ostame igas seisukorras autosid.',
-        'ticks' => ['Igas seisukorras autod', 'Ka liisingus või laenuga', 'Üle kogu Eesti', 'Ülekanne või sularaha'],
+        'subtitle' => 'Üks lühike päring asendab kuulutuse, proovisõidud ja läbirääkimised. Hindame igas seisukorras autosid – ka rikkega, avariilisi ja liisingus olevaid.',
     ],
 
     // Fact strip right under the hero (every item = confirmed fact F4–F7 in the claim register)
@@ -34,7 +34,7 @@ return [
         'items' => [
             ['title' => 'Üle kogu Eesti', 'text' => 'Mitte ainult Tallinn ja Harjumaa'],
             ['title' => 'Igas seisukorras', 'text' => 'Ka rikkega ja avariilised autod'],
-            ['title' => 'Liising või laen', 'text' => 'Päringu saab saata ka sellisele autole'],
+            ['title' => 'Liisingus või laenuga', 'text' => 'Päringu saab saata ka sellisele autole'],
             ['title' => 'Ülekanne või sularaha', 'text' => 'Makse tehingu vormistamisel'],
         ],
     ],
@@ -45,7 +45,7 @@ return [
         'reg' => 'Registreerimisnumber',
         'reg_placeholder' => '123ABC',
         'reg_hint' => 'Tühikud ja sidekriipsud ei ole olulised.',
-        'price_hint' => 'Ei ole kohustuslik – kui Sul on ootus, anna sellest teada.',
+        'price_hint' => 'Ei ole kohustuslik – kui Sul on hinnaootus, anna sellest teada.',
         'phone' => 'Telefoninumber',
         'phone_placeholder' => '+372 5xxx xxxx',
         'email' => 'E-post',
@@ -69,7 +69,7 @@ return [
         'mileage_placeholder' => '185 000',
         'info' => 'Lisainfo',
         'info_placeholder' => 'Lisainfo auto kohta...',
-        'info_hint' => 'Näiteks seisukord, varustus, kahjustused, omanike arv, hooldusajalugu, lisavarustus.',
+        'info_hint' => 'Näiteks seisukord, varustus, kahjustused, omanike arv, hooldusajalugu, liising või laen.',
         'photos' => 'Fotod',
         'photos_button' => 'Lisa fotod',
         'photos_hint' => 'JPG, PNG või WEBP · kuni :max fotot · kuni :mb MB foto kohta',
@@ -109,33 +109,33 @@ return [
 
     'steps' => [
         'eyebrow' => 'Kuidas töötab',
-        'title' => 'Lihtne kokkuost 4 sammuga',
+        'title' => 'Auto väljaost nelja sammuga',
         'items' => [
-            ['title' => 'Saada päring', 'text' => 'Sisesta auto andmed ja soovi korral lisa fotod. See võtab vaid paar minutit.'],
-            ['title' => 'Saad pakkumise', 'text' => 'Hindame Sinu autot ja võtame Sinuga ühendust esimesel võimalusel.'],
-            ['title' => 'Vaatame auto üle', 'text' => 'Lepime kokku sobiva aja ja koha ning vaatame auto koos üle.'],
-            ['title' => 'Tehing ja raha kätte', 'text' => 'Vormistame tehingu ning maksame ülekandega või sularahas.'],
+            ['title' => 'Saada päring', 'text' => 'Sisesta registreerimisnumber ja kontaktandmed, soovi korral lisa läbisõit, kirjeldus ja fotod. Kulub paar minutit.'],
+            ['title' => 'Räägime pakkumise läbi', 'text' => 'Vaatame andmed läbi ja võtame Sinuga ühendust esimesel võimalusel.'],
+            ['title' => 'Vaatame auto üle', 'text' => 'Lepime kokku sobiva aja ja koha. Lõplik pakkumine kujuneb auto tegeliku seisukorra põhjal.'],
+            ['title' => 'Tehing ja makse', 'text' => 'Vormistame tehingu ning maksame pangaülekandega või soovi korral sularahas.'],
         ],
     ],
 
     'why' => [
         'eyebrow' => 'Miks Autostvabaks',
         'title' => 'Miks müüa auto just meile?',
-        'lead' => 'Teeme auto müümise Sinu jaoks võimalikult lihtsaks – ilma kuulutuste, lõputute kõnede ja ajakuluta.',
-        // Each item answers a real seller objection with a confirmed fact (no empty adjectives)
+        'lead' => 'Vastame küsimustele, mida auto müüja tavaliselt esimesena küsib.',
+        // Each card = a real seller objection → factual resolution (confirmed facts only, no adjectives)
         'items' => [
-            ['title' => 'Ilma kuulutuse ja võõraste kõnedeta', 'text' => 'Üks päring meile asendab kuulutuse, proovisõidud ja läbirääkimised võõrastega.'],
-            ['title' => 'Üle kogu Eesti', 'text' => 'Tegutseme kõikjal Eestis, mitte ainult Tallinnas ja Harjumaal.'],
-            ['title' => 'Igas seisukorras, ka liisingus', 'text' => 'Mark, vanus ja seisukord ei ole takistuseks – ostame ka rikkega, avariilisi ning liisingus või laenuga autosid.'],
-            ['title' => 'Selge tehing', 'text' => 'Vormistame tehingu ja maksame pangaülekandega või soovi korral sularahas.'],
+            ['title' => 'Ei taha kuulutust ega võõraste kõnesid?', 'text' => 'Üks päring meile asendab kuulutuse, proovisõidud ja läbirääkimised võõrastega. Suhtled ühe ostjaga.'],
+            ['title' => 'Ei tea, mis Su auto väärt on?', 'text' => 'Soovitud hind on päringus valikuline. Selgitame avalikult, millest pakkumine sõltub, ja räägime hinna Sinuga läbi.'],
+            ['title' => 'Auto on liisingus, rikkega või avariiline?', 'text' => 'See ei ole takistuseks. Hindame autosid igas seisukorras, ka liisingus või laenuga autosid – märgi see päringusse.'],
+            ['title' => 'Kuidas tehing ja makse käivad?', 'text' => 'Lepime kokku ülevaatuse, vormistame tehingu ja maksame pangaülekandega või soovi korral sularahas.'],
         ],
     ],
 
-    // Valuation transparency: what the offer depends on (no algorithm, no margins)
+    // Valuation transparency: what the offer depends on (main factors, not the full internal method; no margins)
     'valuation' => [
         'eyebrow' => 'Hindamine',
         'title' => 'Mis mõjutab pakkumist?',
-        'answer' => 'Pakkumine sõltub auto turuväärtusest ja tegelikust seisukorrast. Hindamisel vaatame järgmist:',
+        'answer' => 'Pakkumine lähtub sarnaste autode turuhinnast Eestis ja Sinu auto tegelikust seisukorrast. Lõplik pakkumine kujuneb pärast auto ülevaatust. Peamised tegurid, mida arvestame:',
         'factors' => [
             ['title' => 'Mark, mudel ja aasta', 'text' => 'Samuti mootor ja käigukast.'],
             ['title' => 'Läbisõit', 'text' => 'Tegelik läbisõit ja selle vastavus vanusele.'],
@@ -145,29 +145,31 @@ return [
             ['title' => 'Hooldusajalugu', 'text' => 'Hooldusraamat, arved, ülevaatus.'],
             ['title' => 'Nõudlus turul', 'text' => 'Kui kiiresti sarnased autod Eestis müüvad.'],
         ],
-        'note' => 'Ei tea oma auto hinda? Pole probleemi – soovitud hind on päringus valikuline.',
+        // Expectation message: direct buyback = simplicity and speed, not an auction of asking prices
+        'expectation' => 'Otsemüük meile on mõeldud lihtsuse ja kiiruse jaoks: üks päring, üks ostja ja kokkulepitud tehing – ilma kuulutuse, ootamise ja võõraste proovisõitudeta. Pakkumine lähtub turuväärtusest ja seisukorrast, mitte kuulutuste küsimishindadest.',
+        'note' => 'Ei tea oma auto hinda? Soovitud hind on päringus valikuline – teeme pakkumise ka ilma selleta.',
         'cta' => 'Küsi pakkumist',
     ],
 
-    // Direct-answer blocks: question → short answer → detail → CTA (confirmed facts F5, F6, F7 only)
+    // Direct-answer blocks: question → short self-contained answer → detail → CTA (confirmed facts F5, F6, F7 only)
     'answers' => [
         'eyebrow' => 'Vastused',
         'title' => 'Liising, kahjustused ja makse',
         'items' => [
             [
-                'question' => 'Kas ostate ka liisingus või laenuga auto?',
-                'answer' => 'Jah. Päringu saab saata ka autole, mis on liisingus või laenuga.',
-                'detail' => 'Märgi lisainfosse, millise liisinguandja või pangaga on tegu – täpsustame edasise käigu koos Sinuga.',
+                'question' => 'Kas liisingus või laenuga autot saab Autostvabaksile müüa?',
+                'answer' => 'Jah. Liisingus või laenuga autole saab päringu saata nagu igale teisele autole.',
+                'detail' => 'Märgi päringu lisainfosse, et autol on kehtiv liising või laen, ja soovi korral ka liisinguandja. Tehingu täpse käigu lepime Sinuga eraldi kokku.',
             ],
             [
-                'question' => 'Kas ostate avariilise või rikkega auto?',
-                'answer' => 'Jah. Ostame ka rikkega ja avariilisi autosid.',
-                'detail' => 'Kirjelda kahjustusi lisainfos ja lisa fotod – nii saame teha täpsema pakkumise.',
+                'question' => 'Kas avariilise või rikkega auto saab hindamisele saata?',
+                'answer' => 'Jah. Hindame ka rikkega ja avariilisi autosid ning teeme pakkumise auto tegeliku seisukorra põhjal.',
+                'detail' => 'Kirjelda kahjustusi lisainfos ja lisa fotod – nii on pakkumine täpsem.',
             ],
             [
-                'question' => 'Kuidas raha kätte saan?',
-                'answer' => 'Pangaülekandega või sularahas – Sinu valikul.',
-                'detail' => 'Makse toimub tehingu vormistamisel.',
+                'question' => 'Kuidas Autostvabaks auto eest maksab?',
+                'answer' => 'Pangaülekandega tehingu vormistamisel. Soovi korral on võimalik ka makse sularahas.',
+                'detail' => 'Makse ja tehingu vormistamine toimuvad korraga – pärast auto ülevaatust ja kokkulepet.',
             ],
         ],
         'cta' => 'Alusta päringut',
@@ -175,7 +177,7 @@ return [
 
     'final' => [
         'title' => 'Valmis oma auto müüma?',
-        'text' => 'Täida lühike päring – see võtab paar minutit. Võtame Sinuga ühendust esimesel võimalusel.',
+        'text' => 'Täida lühike päring – kulub paar minutit. Võtame Sinuga ühendust esimesel võimalusel.',
         'cta' => 'Alusta päringut',
     ],
 
@@ -213,11 +215,13 @@ return [
     ],
 
     'footer' => [
-        'about' => 'Autode kokkuost üle kogu Eesti. Ostame igas seisukorras autosid.',
+        'about' => 'Autode kokkuost üle kogu Eesti. Hindame igas seisukorras autosid – ka liisingus, rikkega ja avariilisi.',
         'contact' => 'Kontakt',
         'links' => 'Lingid',
         'info' => 'Kasulik info',
         'legal' => 'Juriidiline info',
+        // Legal operator / data controller line (F2) – discreet, factual, no second brand identity
+        'operator' => 'Autostvabaks teenuse osutaja: :operator',
         'rights' => 'Kõik õigused kaitstud.',
         'top' => 'Tagasi üles',
     ],

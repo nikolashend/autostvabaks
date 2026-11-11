@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasTranslations;
+use App\Support\HtmlSanitizer;
 use App\Support\Site;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -42,6 +43,13 @@ class Page extends Model
     protected static function booted(): void
     {
         $flush = fn () => Cache::forget('site.footer_pages');
+        // Stored-XSS guard: admin rich text is reduced to the formatting allow-list before it is persisted.
+        static::saving(function (Page $page) {
+            $content = $page->content;
+            if (is_array($content)) {
+                $page->content = array_map(fn ($html) => $html === null ? null : HtmlSanitizer::clean((string) $html), $content);
+            }
+        });
         static::saved($flush);
         static::deleted($flush);
     }

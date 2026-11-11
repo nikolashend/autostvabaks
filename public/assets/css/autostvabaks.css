@@ -744,8 +744,8 @@ body.asv-lock {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(20, 20, 20, 0.96) 0%, rgba(20, 20, 20, 0.86) 38%, rgba(20, 20, 20, 0.5) 70%, rgba(20, 20, 20, 0.62) 100%),
-    linear-gradient(180deg, rgba(20, 20, 20, 0.55) 0%, rgba(20, 20, 20, 0) 30%, rgba(20, 20, 20, 0.7) 100%);
+    linear-gradient(90deg, rgba(20, 20, 20, 0.96) 0%, rgba(20, 20, 20, 0.84) 36%, rgba(20, 20, 20, 0.42) 66%, rgba(20, 20, 20, 0.52) 100%),
+    linear-gradient(180deg, rgba(20, 20, 20, 0.5) 0%, rgba(20, 20, 20, 0) 28%, rgba(20, 20, 20, 0.66) 100%);
 }
 
 .asv-hero__grid {
@@ -895,7 +895,7 @@ body.asv-lock {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 50% 72%;
+    object-position: 50% 50%;
   }
 }
 
@@ -2925,4 +2925,27 @@ textarea.asv-input {
     opacity: 1;
     transform: none;
   }
+}
+
+/* ====== Stage 3 additions ====== */
+
+/* valuation: expectation message under the direct answer */
+.asv-valuation__expectation {
+  margin-top: 14px;
+  max-width: 54ch;
+  font-size: var(--asv-text-small);
+  line-height: 1.6;
+  color: var(--asv-text-on-dark-muted);
+}
+
+/* footer: legal operator line (discreet, no second brand) */
+.asv-footer__bottom > div > p {
+  margin: 0;
+}
+
+.asv-footer__operator {
+  margin-top: 4px !important;
+  font-size: var(--asv-text-xs);
+  color: var(--asv-text-on-dark-muted);
+  opacity: 0.85;
 }

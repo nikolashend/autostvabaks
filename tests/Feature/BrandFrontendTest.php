@@ -57,9 +57,9 @@ class BrandFrontendTest extends TestCase
     public function test_conversion_components_render_in_every_locale(): void
     {
         $expected = [
-            '/' => ['Mis mõjutab pakkumist?', 'Kas ostate ka liisingus või laenuga auto?', 'Valmis oma auto müüma?', 'Samm 1 / 2'],
-            '/ru' => ['Что влияет на предложение?', 'Покупаете ли вы автомобиль в лизинге или кредите?', 'Готовы продать автомобиль?', 'Шаг 1 из 2'],
-            '/en' => ['What affects the offer?', 'Do you buy a car that is leased or financed?', 'Ready to sell your car?', 'Step 1 of 2'],
+            '/' => ['Mis mõjutab pakkumist?', 'Kas liisingus või laenuga autot saab Autostvabaksile müüa?', 'Valmis oma auto müüma?', 'Samm 1 / 2'],
+            '/ru' => ['Что влияет на предложение?', 'Можно ли продать Autostvabaks автомобиль в лизинге или кредите?', 'Готовы продать автомобиль?', 'Шаг 1 из 2'],
+            '/en' => ['What affects the offer?', 'Can a leased or financed car be sold to Autostvabaks?', 'Ready to sell your car?', 'Step 1 of 2'],
         ];
 
         foreach ($expected as $path => $strings) {
@@ -81,8 +81,9 @@ class BrandFrontendTest extends TestCase
 
     public function test_copy_contains_no_prohibited_claims(): void
     {
-        $prohibited = ['parim hind', 'parima hinna', 'лучшая цена', 'лучшую цену', 'best price', 'highest price',
-            'garanteeritud', 'гарантируем', 'guaranteed', 'kiireim', 'самый быстрый', 'fastest', '#1', 'tasuta hindamine'];
+        // single source of truth shared with `site:release-check` (FACT_CLAIM_REGISTER §4)
+        $prohibited = config('autostvabaks.prohibited_claims');
+        $this->assertNotEmpty($prohibited);
 
         foreach (['/', '/ru', '/en'] as $path) {
             $html = mb_strtolower(strip_tags($this->get($path)->assertOk()->getContent()));

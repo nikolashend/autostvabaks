@@ -42,13 +42,19 @@ php artisan serve --port=8010
 
 | Что | Где |
 |---|---|
-| Тексты интерфейса, шагов и преимуществ (черновые) | `lang/et/site.php`, `lang/ru/site.php`, `lang/en/site.php` |
+| Финальные тексты лендинга (Stage 3), title/description | `lang/et/site.php`, `lang/ru/site.php`, `lang/en/site.php` — каждое утверждение сверяется с `docs/autostvabaks/AUTOSTVABAKS_FACT_CLAIM_REGISTER_V1.md`; запрещённые формулировки — `config/autostvabaks.php` → `prohibited_claims` (тест + release-check) |
+| FAQ (9 согласованных вопросов) | `database/seeders/FaqSeeder.php` (ключи `vehicles … payment`); публикация на сервере: `php artisan db:seed --class=FaqSeeder --force` — перезаписывает правки этих вопросов в админке |
 | Цвета бренда / токены | `public/assets/css/autostvabaks.css` → `:root` (`--asv-brand-primary`, `--asv-brand-dark`, …) и `config/autostvabaks.php` → `brand` (админка, theme-color) |
 | Логотип | компонент `resources/views/components/asv-logo.blade.php` → `public/assets/imgs/brand/logo.svg` (светлый фон) / `logo-white.svg` (тёмный). Оригиналы Олега — `resources/brand/source/` (не редактировать) |
-| Фон первого экрана (временный) | `public/assets/imgs/hero/hero.webp|jpg` (десктоп), `hero-mobile.webp|jpg` (телефоны, под формой). Бриф на замену — отчёт Stage 2 §13 |
+| Фон первого экрана (временный, `HERO_ASSET_STATUS=temporary` блокирует production) | `public/assets/imgs/hero/hero.webp|jpg` (десктоп), `hero-mobile-card.webp|jpg` (телефоны, 16:9 под формой). Бриф на замену — отчёт Stage 2 §13; после замены — `HERO_ASSET_STATUS=approved` |
+| OG / социальная картинка | `public/assets/imgs/brand/og-{et,ru,en}.jpg` (1200×630, бренд-композиция) |
+| Минифицированные CSS/JS | `node scripts/build-assets.cjs` (esbuild из `motionmotors/node_modules`) → `autostvabaks.min.css|js`; после правки исходников пересобрать и закоммитить, иначе отдаётся исходник (`Site::asset`) |
+| Аналитика (GTM) | `.env`: `ANALYTICS_GTM_ID=GTM-XXXX`, `ANALYTICS_ENABLED` (по умолчанию только production-хост); события — `window.dataLayer` (см. master baseline §12) |
+| CSP | `.env`: `CSP_MODE=report-only` (по умолчанию) / `enforce` / `off`; политика — `app/Support/Csp.php` |
+| Санитайзер HTML страниц админки | `app/Support/HtmlSanitizer.php` (при сохранении и при выводе) |
 | Шрифты | `public/assets/fonts/` — Urbanist (latin, latin-ext) + Manrope (кириллица), self-hosted |
 | Bootstrap | `public/assets/css/vendors/bootstrap.min.css` — урезанная сборка; после добавления новых bootstrap-классов пересобрать: `node scripts/purge-bootstrap.cjs <полный bootstrap.min.css> <url …>` (см. шапку скрипта) |
-| Лимиты фото, адрес для заявок по умолчанию | `config/autostvabaks.php` |
+| Лимиты фото, бюджет вложений письма (`LEADS_MAIL_ATTACHMENTS_MAX_MB`, 10 МБ), адрес для заявок | `config/autostvabaks.php` |
 | Письмо о новой заявке | `app/Mail/NewLeadMail.php`, `resources/views/emails/new-lead*.blade.php` |
 | Поведение страницы (форма, sticky CTA, карта, аналитика) | `public/assets/js/autostvabaks.js` (без jQuery; Bootstrap bundle + Swiper только при >3 отзывах) |
 
@@ -69,7 +75,8 @@ ssh autostvabaks "cd ~/www/autostvabaks.adme.ee && bash deploy.sh"
 
 ## Деплой (production, autostvabaks.ee)
 
-1. `.env`: `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://autostvabaks.ee`, `SITE_NOINDEX=false`, `STAGING_AUTH=` (пусто), доступы к БД, боевой **SMTP** вместо Mailtrap (`MAIL_FROM_ADDRESS=info@autostvabaks.ee`).
+1. `.env`: `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://autostvabaks.ee`, `SITE_NOINDEX=false`, `STAGING_AUTH=` (пусто), доступы к БД, боевой **SMTP** вместо Mailtrap (`MAIL_FROM_ADDRESS=info@autostvabaks.ee`), `HERO_ASSET_STATUS=approved` и `LEGAL_CONTENT_STATUS=approved` (только после реальной замены hero и утверждения юр. текстов), `ANALYTICS_GTM_ID` при наличии контейнера.
+0. Перед выкладкой: `php artisan site:release-check --strict` должен пройти без FAIL (гейты: noindex, debug, staging auth, placeholder-отзывы, черновики, запрещённые формулировки, временный hero/OG, sitemap).
 2. `composer install --no-dev --optimize-autoloader`, `php artisan migrate --force --seed`, `php artisan optimize`, `php artisan filament:assets` (всё это делает `deploy.sh`).
 3. Document root веб-сервера → `public/`. PHP: `upload_max_filesize` и `post_max_size` не меньше 48M (10 фото × до 8 МБ до сжатия).
 4. SPF/DKIM для отправителя `info@autostvabaks.ee`, чтобы письма с заявками не попадали в спам.

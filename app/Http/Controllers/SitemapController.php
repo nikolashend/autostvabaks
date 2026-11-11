@@ -26,9 +26,16 @@ class SitemapController extends Controller
 
     public function robots(): Response
     {
+        // Production policy (ADR-25): everything public is crawlable, /admin is not. OAI-SearchBot
+        // (ChatGPT search index) is allowed explicitly; GPTBot (model training) follows the default
+        // "*" group until the client decides otherwise. Staging stays fully blocked.
         $lines = config('autostvabaks.noindex')
             ? ['User-agent: *', 'Disallow: /']
-            : ['User-agent: *', 'Disallow: /admin', '', 'Sitemap: '.route('sitemap')];
+            : [
+                'User-agent: *', 'Disallow: /admin', '',
+                'User-agent: OAI-SearchBot', 'Allow: /', 'Disallow: /admin', '',
+                'Sitemap: '.route('sitemap'),
+            ];
 
         return response(implode("\n", $lines)."\n", 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
     }

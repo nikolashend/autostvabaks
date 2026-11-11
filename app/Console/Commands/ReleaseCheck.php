@@ -4,22 +4,29 @@ namespace App\Console\Commands;
 
 use App\Models\Page;
 use App\Models\Testimonial;
+use App\Support\Analytics;
 use App\Support\Site;
 use Illuminate\Console\Command;
+use Illuminate\Http\Request;
 
 /**
  * Production release gate: `php artisan site:release-check`
  *
  * Exit code 1 when the current configuration or content must not go live:
  * staging noindex on the production host, debug mode, placeholder reviews,
- * draft legal pages, sample strings on public pages, staging host in SEO output.
- * Run it in deploy.sh; it is safe on staging (warnings instead of failures).
+ * draft legal pages, sample strings / prohibited claims / staging host on
+ * public pages, temporary hero or OG asset, unapproved legal texts, broken
+ * sitemap entries. Run it in deploy.sh; on staging the content findings are
+ * warnings, on the production host (or with --strict) they block.
+ *
+ * Human sign-offs are explicit statuses in .env (HERO_ASSET_STATUS,
+ * LEGAL_CONTENT_STATUS) – nobody has to remember them at launch time.
  */
 class ReleaseCheck extends Command
 {
     protected $signature = 'site:release-check {--strict : Treat every warning as a failure (use on the production host)}';
 
-    protected $description = 'Verify that the site is safe to publish (noindex, debug, placeholders, drafts, hosts).';
+    protected $description = 'Verify that the site is safe to publish (noindex, debug, placeholders, drafts, hosts, assets, legal, sitemap).';
 
     private array $failures = [];
 
@@ -27,6 +34,10 @@ class ReleaseCheck extends Command
 
     public function handle(): int
     {
+        // the command object is reused when artisan is invoked several times in one process (tests, deploy scripts)
+        $this->failures = [];
+        $this->warnings = [];
+
         $production = Site::isProductionHost() || $this->option('strict');
         $appUrl = (string) config('app.url');
 
@@ -48,6 +59,30 @@ class ReleaseCheck extends Command
         }
         if (! $production && ! config('autostvabaks.noindex')) {
             $this->warn_('Non-production host without SITE_NOINDEX=true – make sure this host is not reachable by crawlers.');
+        }
+
+        // --- human sign-offs (Stage 3 gates) --------------------------------
+        $hero = (string) config('autostvabaks.release.hero_asset_status');
+        if ($hero !== 'approved') {
+            $this->report($production, "HERO_ASSET_STATUS={$hero} – the hero visual is still the temporary template asset (licence/brand not production-grade). Replace it per the Stage-2 brief and set HERO_ASSET_STATUS=approved.");
+        }
+        $legal = (string) config('autostvabaks.release.legal_content_status');
+        if ($legal !== 'approved') {
+            $this->report($production, "LEGAL_CONTENT_STATUS={$legal} – Terms / Privacy texts are not client-approved. Publish the approved texts in admin → Pages and set LEGAL_CONTENT_STATUS=approved.");
+        }
+
+        // --- analytics / assets --------------------------------------------
+        if (! Analytics::configured()) {
+            $this->warn_('No analytics container configured (ANALYTICS_GTM_ID) – conversions will not be measured after launch.');
+        } elseif ($production && ! Analytics::enabled()) {
+            $this->warn_('ANALYTICS_ENABLED=false – the configured GTM container is not injected on this host.');
+        }
+        if (config('autostvabaks.minified_assets', true)) {
+            foreach (['assets/css/autostvabaks.css', 'assets/js/autostvabaks.js'] as $source) {
+                if (! Site::minifiedTwin($source)) {
+                    $this->warn_("Minified twin of {$source} is missing or older than the source – run `node scripts/build-assets.cjs`.");
+                }
+            }
         }
 
         // --- content ------------------------------------------------------
@@ -74,6 +109,9 @@ class ReleaseCheck extends Command
         if ($production) {
             $markers[] = 'autostvabaks.adme.ee';
         }
+        $claims = config('autostvabaks.prohibited_claims', []);
+        $temporaryHero = config('autostvabaks.release.temporary_hero_files', []);
+
         foreach (array_keys(Site::locales()) as $locale) {
             $url = Site::route('home', [], $locale);
             $html = $this->render($url);
@@ -87,13 +125,40 @@ class ReleaseCheck extends Command
                     $this->report($production, "{$url} contains \"{$marker}\".");
                 }
             }
+            $text = mb_strtolower(strip_tags($html));
+            foreach ($claims as $claim) {
+                if (mb_strpos($text, mb_strtolower($claim)) !== false) {
+                    $this->report($production, "{$url} contains the prohibited claim fragment \"{$claim}\" (FACT_CLAIM_REGISTER §4).");
+                }
+            }
             if ($production && preg_match('/<meta name="robots" content="[^"]*noindex/i', $html)) {
                 $this->block("{$url} renders a noindex meta tag.");
+            }
+            if (preg_match('/nosnippet|max-snippet|max-image-preview:none|noimageindex/i', $html)) {
+                $this->report($production, "{$url} carries a snippet / preview restriction – remove it unless deliberate (Google AI / search controls).");
             }
             if (! preg_match('/<link rel="canonical" href="'.preg_quote(rtrim($appUrl, '/'), '/').'/', $html)) {
                 $this->report($production, "{$url}: canonical does not start with APP_URL ({$appUrl}).");
             }
+            // The temporary template photo must not be the social / schema image of the page.
+            if (preg_match('/<meta property="og:image" content="([^"]+)"/', $html, $m)) {
+                foreach ($temporaryHero as $file) {
+                    if (str_contains($m[1], $file)) {
+                        $this->block("{$url}: og:image points at the temporary hero asset ({$file}).");
+                    }
+                }
+            }
+            if (preg_match('/"primaryImageOfPage":"([^"]+)"/', $html, $m)) {
+                foreach ($temporaryHero as $file) {
+                    if (str_contains($m[1], $file)) {
+                        $this->block("{$url}: schema primaryImageOfPage points at the temporary hero asset ({$file}).");
+                    }
+                }
+            }
         }
+
+        // --- sitemap: every URL must be a live, self-canonical, indexable production route ----
+        $this->checkSitemap($production, $appUrl);
 
         // --- output -------------------------------------------------------
         foreach ($this->warnings as $w) {
@@ -114,6 +179,50 @@ class ReleaseCheck extends Command
         return self::SUCCESS;
     }
 
+    private function checkSitemap(bool $production, string $appUrl): void
+    {
+        $xml = $this->render(route('sitemap'));
+        if ($xml === null) {
+            $this->report($production, 'sitemap.xml could not be rendered.');
+
+            return;
+        }
+
+        preg_match_all('~<loc>([^<]+)</loc>~', $xml, $m);
+        $urls = array_values(array_unique(array_map('html_entity_decode', $m[1])));
+
+        if ($urls === []) {
+            $this->report($production, 'sitemap.xml lists no URLs.');
+
+            return;
+        }
+
+        foreach ($urls as $loc) {
+            if (! str_starts_with($loc, rtrim($appUrl, '/'))) {
+                $this->report($production, "sitemap: {$loc} is not on APP_URL.");
+
+                continue;
+            }
+            if (preg_match('~/(admin|livewire|paring|up)(/|$)~', parse_url($loc, PHP_URL_PATH) ?? '')) {
+                $this->report($production, "sitemap: {$loc} is a utility route and must not be listed.");
+
+                continue;
+            }
+            $html = $this->render($loc);
+            if ($html === null) {
+                $this->report($production, "sitemap: {$loc} does not return 200.");
+
+                continue;
+            }
+            if (preg_match('/<meta name="robots" content="[^"]*noindex/i', $html) && ! config('autostvabaks.noindex')) {
+                $this->report($production, "sitemap: {$loc} is noindex but listed.");
+            }
+            if (! str_contains($html, '<link rel="canonical" href="'.$loc.'">')) {
+                $this->report($production, "sitemap: {$loc} is not self-canonical.");
+            }
+        }
+    }
+
     private function render(string $url): ?string
     {
         try {
@@ -125,7 +234,7 @@ class ReleaseCheck extends Command
                 [$server['PHP_AUTH_USER'], $server['PHP_AUTH_PW']] = explode(':', $auth, 2);
             }
 
-            $request = \Illuminate\Http\Request::create($url, 'GET', server: $server);
+            $request = Request::create($url, 'GET', server: $server);
             $response = app()->handle($request);
 
             return $response->getStatusCode() === 200 ? (string) $response->getContent() : null;

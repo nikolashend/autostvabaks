@@ -1,13 +1,15 @@
 <?php
 
-// Public site texts – English.
-// NB! Step and benefit texts are drafts and will be replaced with the final copy.
+// Public site texts – English. Concise, natural; written for English-speaking residents and
+// international owners in Estonia, not expanded for SEO. Every statement must match the fact
+// register (docs/autostvabaks/AUTOSTVABAKS_FACT_CLAIM_REGISTER_V1.md): no best/highest price,
+// no guarantees, no "fastest", no reply-time promise, no invented numbers.
 
 return [
 
     'meta' => [
-        'title' => 'Autostvabaks – we buy cars all over Estonia | Sell your car fast',
-        'description' => 'Sell your car quickly and easily. Send a request and get an offer – we buy cars in any condition all over Estonia.',
+        'title' => 'Car buyback across Estonia – sell your car the simple way | Autostvabaks',
+        'description' => 'Autostvabaks buys cars all over Estonia – any condition, including faulty, damaged and leased cars. Send a short request, get an offer, close the deal. Payment by bank transfer or cash.',
     ],
 
     'nav' => [
@@ -22,10 +24,9 @@ return [
     ],
 
     'hero' => [
-        'eyebrow' => 'We buy cars all over Estonia',
+        'eyebrow' => 'Car buyback across Estonia',
         'title' => 'Sell your car quickly and easily',
-        'subtitle' => 'Fill in a short request and get an offer for your car. We buy cars in any condition.',
-        'ticks' => ['Cars in any condition', 'Leased or financed cars too', 'All over Estonia', 'Bank transfer or cash'],
+        'subtitle' => 'One short request instead of listings, viewings and haggling. We evaluate cars in any condition – faulty, damaged or under leasing.',
     ],
 
     'trust' => [
@@ -33,7 +34,7 @@ return [
         'items' => [
             ['title' => 'All over Estonia', 'text' => 'Not only Tallinn and Harju County'],
             ['title' => 'Any condition', 'text' => 'Including faulty and damaged cars'],
-            ['title' => 'Leasing or loan', 'text' => 'You can send a request for such a car too'],
+            ['title' => 'Leased or financed', 'text' => 'You can send a request for such a car too'],
             ['title' => 'Bank transfer or cash', 'text' => 'Paid when the deal is completed'],
         ],
     ],
@@ -68,7 +69,7 @@ return [
         'mileage_placeholder' => '185 000',
         'info' => 'Additional information',
         'info_placeholder' => 'Additional information about the car...',
-        'info_hint' => 'For example: condition, equipment, damage, number of owners, service history, extras.',
+        'info_hint' => 'For example: condition, equipment, damage, number of owners, service history, leasing or loan.',
         'photos' => 'Photos',
         'photos_button' => 'Add photos',
         'photos_hint' => 'JPG, PNG or WEBP · up to :max photos · up to :mb MB each',
@@ -108,31 +109,31 @@ return [
 
     'steps' => [
         'eyebrow' => 'How it works',
-        'title' => 'Sell your car in 4 simple steps',
+        'title' => 'Car buyback in four steps',
         'items' => [
-            ['title' => 'Send a request', 'text' => 'Enter your car details and add photos if you like. It only takes a couple of minutes.'],
-            ['title' => 'Get an offer', 'text' => 'We evaluate your car and contact you as soon as possible.'],
-            ['title' => 'Car inspection', 'text' => 'We agree on a convenient time and place and look over the car together.'],
-            ['title' => 'Deal and payment', 'text' => 'We complete the paperwork and pay by bank transfer or in cash.'],
+            ['title' => 'Send a request', 'text' => 'Enter the registration number and your contact details; add mileage, a description and photos if you like. It takes a couple of minutes.'],
+            ['title' => 'We discuss the offer', 'text' => 'We review the details and contact you as soon as possible.'],
+            ['title' => 'We inspect the car', 'text' => 'We agree on a convenient time and place. The final offer is based on the actual condition of the car.'],
+            ['title' => 'Deal and payment', 'text' => 'We complete the paperwork and pay by bank transfer or, if you prefer, in cash.'],
         ],
     ],
 
     'why' => [
         'eyebrow' => 'Why Autostvabaks',
         'title' => 'Why sell your car to us?',
-        'lead' => 'We make selling your car as simple as possible – no ads, no endless phone calls, no wasted time.',
+        'lead' => 'The questions sellers usually ask first – answered.',
         'items' => [
-            ['title' => 'No ads, no calls from strangers', 'text' => 'One request to us replaces the listing, the test drives and the haggling with unknown buyers.'],
-            ['title' => 'All over Estonia', 'text' => 'We work across the whole country, not only in Tallinn and Harju County.'],
-            ['title' => 'Any condition, leasing included', 'text' => 'Make, age and condition are not an obstacle – we also buy faulty, damaged, leased or financed cars.'],
-            ['title' => 'A clear deal', 'text' => 'We complete the paperwork and pay by bank transfer or, if you prefer, in cash.'],
+            ['title' => 'No listing, no calls from strangers?', 'text' => 'One request to us replaces the listing, the viewings and the haggling with unknown buyers. You deal with one buyer.'],
+            ['title' => 'Not sure what your car is worth?', 'text' => 'The desired price in the request is optional. We explain openly what the offer depends on and discuss the price with you.'],
+            ['title' => 'Car under leasing, faulty or damaged?', 'text' => 'Not an obstacle. We evaluate cars in any condition, including leased or financed cars – just mention it in the request.'],
+            ['title' => 'How do the deal and payment work?', 'text' => 'We agree on an inspection, complete the paperwork and pay by bank transfer or, if you prefer, in cash.'],
         ],
     ],
 
     'valuation' => [
         'eyebrow' => 'Valuation',
         'title' => 'What affects the offer?',
-        'answer' => 'The offer depends on the market value of the car and its actual condition. When evaluating, we look at the following:',
+        'answer' => 'The offer is based on the market price of similar cars in Estonia and the actual condition of your car. The final offer is made after an inspection. The main factors we consider:',
         'factors' => [
             ['title' => 'Make, model and year', 'text' => 'As well as engine and gearbox.'],
             ['title' => 'Mileage', 'text' => 'Actual mileage and how it matches the age.'],
@@ -142,7 +143,8 @@ return [
             ['title' => 'Service history', 'text' => 'Service book, invoices, inspection.'],
             ['title' => 'Market demand', 'text' => 'How quickly similar cars sell in Estonia.'],
         ],
-        'note' => 'Not sure what your car is worth? No problem – the desired price in the request is optional.',
+        'expectation' => 'Selling directly to us is about simplicity and speed: one request, one buyer and an agreed deal – no listing, no waiting, no viewings with strangers. The offer is based on market value and condition, not on asking prices in listings.',
+        'note' => 'Not sure what your car is worth? The desired price in the request is optional – we make an offer without it too.',
         'cta' => 'Ask for an offer',
     ],
 
@@ -151,19 +153,19 @@ return [
         'title' => 'Leasing, damage and payment',
         'items' => [
             [
-                'question' => 'Do you buy a car that is leased or financed?',
-                'answer' => 'Yes. You can send a request for a car that is under leasing or a loan.',
-                'detail' => 'Mention the leasing company or bank in the additional information – we clarify the next steps together with you.',
+                'question' => 'Can a leased or financed car be sold to Autostvabaks?',
+                'answer' => 'Yes. A car under leasing or a loan can be submitted for evaluation like any other car.',
+                'detail' => 'Mention the active leasing or loan in the additional information, and the leasing company if you like. The exact steps of the deal are agreed with you individually.',
             ],
             [
-                'question' => 'Do you buy a damaged or faulty car?',
-                'answer' => 'Yes. We also buy faulty and damaged cars.',
-                'detail' => 'Describe the damage in the additional information and add photos – that way we can make a more precise offer.',
+                'question' => 'Can a damaged or faulty car be submitted for evaluation?',
+                'answer' => 'Yes. We evaluate faulty and damaged cars as well and make an offer based on the actual condition of the car.',
+                'detail' => 'Describe the damage in the additional information and add photos – the offer will be more precise.',
             ],
             [
-                'question' => 'How do I get paid?',
-                'answer' => 'By bank transfer or in cash – your choice.',
-                'detail' => 'Payment is made when the deal is completed.',
+                'question' => 'How does Autostvabaks pay for the car?',
+                'answer' => 'By bank transfer when the deal is completed. Cash payment is possible on request.',
+                'detail' => 'Payment and paperwork happen at the same time – after the inspection and the agreement.',
             ],
         ],
         'cta' => 'Start request',
@@ -205,15 +207,16 @@ return [
         'map_title' => 'Autostvabaks on the map',
         'open_map' => 'Open in Google Maps',
         'load_map' => 'Show map',
-        'load_map_note' => 'Loading the map uses the Google Maps service.'
+        'load_map_note' => 'Loading the map uses the Google Maps service.',
     ],
 
     'footer' => [
-        'about' => 'We buy cars all over Estonia – in any condition.',
+        'about' => 'Car buyback all over Estonia. We evaluate cars in any condition – leased, faulty and damaged cars included.',
         'contact' => 'Contact',
         'links' => 'Links',
         'info' => 'Useful information',
         'legal' => 'Legal',
+        'operator' => 'The Autostvabaks service is provided by :operator',
         'rights' => 'All rights reserved.',
         'top' => 'Back to top',
     ],

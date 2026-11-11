@@ -1,6 +1,6 @@
 # AUTOSTVABAKS — X999 MASTER BASELINE V1
 
-**Status: FROZEN (Stage 1, 2026-11-09; §2, §11, §13, §15 amended by Stage 2 on 2026-11-10 per ADR-17…22).** Every later task (Stage 3–5) starts by reading this file. It is the project constitution: change it only by a deliberate, documented decision (append to `AUTOSTVABAKS_ARCHITECTURE_DECISIONS_V1.md`).
+**Status: FROZEN (Stage 1, 2026-11-09; §2, §11, §13, §15 amended by Stage 2 on 2026-11-10 per ADR-17…22; §4, §5, §12 amended and §17 added by Stage 3 on 2026-11-11 per ADR-23…31).** Every later task (Stage 3–5) starts by reading this file. It is the project constitution: change it only by a deliberate, documented decision (append to `AUTOSTVABAKS_ARCHITECTURE_DECISIONS_V1.md`).
 
 ## 1. Identity
 
@@ -48,13 +48,13 @@ admin/*  livewire/*  (noindex, auth)
 | staging (autostvabaks.adme.ee) | **true** | user:pass | `<meta robots noindex,nofollow>` + `X-Robots-Tag` + `robots.txt Disallow: /` + Basic Auth |
 | production (autostvabaks.ee) | **false** | **empty** | indexable, `robots.txt` allows all except `/admin`, sitemap advertised |
 
-Guards: `php artisan site:release-check` (fails on the production host when noindex/debug/placeholders/drafts/staging host are present; `--strict` forces failure mode anywhere) and `tests/Feature/SeoFoundationTest.php` (production simulation with `APP_URL=https://autostvabaks.ee`). `deploy.sh` runs the check.
+Guards: `php artisan site:release-check` (fails on the production host when noindex/debug/placeholders/drafts/staging host/prohibited claims/snippet restrictions/broken sitemap entries are present, or when `HERO_ASSET_STATUS` / `LEGAL_CONTENT_STATUS` are not `approved`, or when og:image/schema point at the temporary hero; `--strict` forces failure mode anywhere) and `tests/Feature/SeoFoundationTest.php` + `Stage3HardeningTest.php` (production simulation with `APP_URL=https://autostvabaks.ee`). `deploy.sh` runs the check. Production `robots.txt` allows `OAI-SearchBot` explicitly (ADR-25). Public pages carry a nonce-based CSP (`CSP_MODE`, ADR-24).
 
 ## 5. Lead form (FROZEN)
 
 - Visible immediately in the hero. Step 1: reg number*, phone*, e-mail*, desired price, terms consent → **Alusta päringut** (nothing sent). Step 2 (modal): communication language (default = page locale), mileage, info, photos (≤10, ≤8 MB each, JPG/PNG/WEBP, downscaled client-side) → **Saada päring**.
 - Server validation is authoritative (`StoreLeadRequest`); client validation is UX. Honeypot `website`; rate limit 8/10 min/IP; duplicate guard (same reg + e-mail within 2 min = one lead); CSRF-exempt endpoint by design (anonymous, stateless).
-- DB is the lead record. Flow: save → store photos privately (`storage/app/private/leads/{id}`) → e-mail with attachments; mail failure is recorded on the lead, never loses it.
+- DB is the lead record. Flow: save → store photos privately (`storage/app/private/leads/{id}`) → e-mail with attachments up to `LEADS_MAIL_ATTACHMENTS_MAX_MB` (10 MB, ADR-27) + authenticated admin deep-link; photos beyond the budget are announced as "available in the admin panel"; mail failure is recorded on the lead, never loses it.
 - Attribution fields `utm_source/medium/campaign/content/term`, `gclid` — optional, never required.
 - External registration/vehicle API: **OUT OF SCOPE V1**; the form must stay fully functional without it.
 
@@ -90,7 +90,7 @@ LCP ≤ 2.5 s · INP < 200 ms · CLS < 0.1 (stretch ≤ 0.05). Baseline numbers:
 
 Events pushed to `window.dataLayer` via `window.asvTrack(name, params)`:
 `buyback_form_start`, `buyback_form_step1_complete`, `buyback_form_step2_view`, `buyback_photo_add {photo_count}`, `buyback_form_submit {photo_count, has_price}`, `buyback_form_success`, `buyback_form_error {step, status?, fields}`, `buyback_cta_click {cta_location}`, `buyback_phone_click`, `buyback_whatsapp_click`, `buyback_telegram_click`, `buyback_faq_open {faq_index}`, `buyback_map_load`.
-Never send: plate, phone, e-mail, free text, file names, images. No analytics vendor is installed; tags go in admin → Settings → head scripts.
+Never send: plate, phone, e-mail, free text, file names, images. Vendor (Stage 3, ADR-28): GTM container from `ANALYTICS_GTM_ID`, injected on the production host only unless `ANALYTICS_ENABLED=true`; `window.dataLayer` is initialised before the container; extra snippets via admin → Settings → head scripts (nonced). Consent approach for GA4 is a client decision before enabling tags.
 
 ## 13. Brand / design tokens
 
@@ -107,3 +107,7 @@ Hero form above the fold on all viewports · 2-step flow with retained data · E
 ## 16. Stage-2 protected strengths (added 2026-11-10; do not regress in Stage 3+)
 
 Approved logo component and tokens · hero composition copy → form → fact strip (desktop) / H1 → form → facts → visual (mobile) · valuation transparency section (`#hindamine`) · direct-answer cards (`#vastused`: leasing, damaged, payment) · success state with "what happens next" · mobile sticky CTA (`[data-sticky-cta]`) · reviews grid for 1–3, Swiper only > 3 · no `theme.css`, Bootstrap subset regenerated by `scripts/purge-bootstrap.cjs` · Lighthouse (local, no gzip) mobile ≥ 90 / desktop 100 / a11y 100 · `BrandFrontendTest` green.
+
+## 17. Stage-3 protected strengths (added 2026-11-11; do not regress in Stage 4+)
+
+Final ET/RU/EN copy in `lang/*/site.php` written against the fact register (no prohibited claims; scanner in test + release-check) · category-first titles, native H1s (ADR-31) · 9 keyed FAQ records = visible accordion = FAQPage schema (`FaqSeeder` content release, ADR-23) · valuation section with expectation message (F13/F14) · leasing / damaged / payment direct answers (F6/F5/F15) · legal operator line in the footer (F2) · brand OG images per locale, release gates `HERO_ASSET_STATUS` / `LEGAL_CONTENT_STATUS` (ADR-26) · production robots with `OAI-SearchBot` (ADR-25) · nonce CSP report-only on public pages (ADR-24) · HTML sanitiser for CMS pages (ADR-30) · lead-mail attachment budget + admin deep-link (ADR-27) · GTM switch (ADR-28) · minified twins + host caching (ADR-29) · 38 tests / 527 assertions green.

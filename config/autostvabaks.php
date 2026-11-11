@@ -89,9 +89,10 @@ return [
         'max_photos' => 10,
         'max_photo_mb' => 8,
 
-        // Photos are attached to the e-mail until this total is reached;
-        // the rest stay available in the admin panel only.
-        'mail_attachments_max_mb' => 18,
+        // Photos are attached to the e-mail until this total is reached; the rest
+        // stay available in the admin panel only (the e-mail links to the lead).
+        // 10 MB of files ≈ 14 MB on the wire – safely under common 20–25 MB limits.
+        'mail_attachments_max_mb' => (int) env('LEADS_MAIL_ATTACHMENTS_MAX_MB', 10),
 
         // Browser-side downscale before upload (keeps uploads fast on mobile
         // and the notification e-mail small enough to be delivered).
@@ -129,4 +130,71 @@ return [
         'A real customer review will appear here',
     ],
     'draft_markers' => ['Mustand', 'Черновик', 'Draft'],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Prohibited claims (FACT_CLAIM_REGISTER §4)
+    |--------------------------------------------------------------------------
+    | Lower-case fragments that must never appear in rendered public pages.
+    | Checked by tests/Feature/BrandFrontendTest.php and `site:release-check`.
+    */
+    'prohibited_claims' => [
+        'parim hind', 'parima hinna', 'kõrgeim hind', 'kõrgeima hinna', 'garanteeri', 'kiireim', 'tasuta hindamine', 'nr 1', 'nr. 1',
+        'лучшая цена', 'лучшую цену', 'самая высокая цена', 'гарантир', 'самый быстрый', 'лучший выкуп', 'обязательно купим',
+        'best price', 'highest price', 'guarantee', 'fastest', '#1', 'number one', 'free valuation',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Production release gates (Stage 3) – checked by `site:release-check`
+    |--------------------------------------------------------------------------
+    | Human sign-offs are recorded as explicit statuses, never inferred from
+    | "the file exists" or "the route works". On the production host anything
+    | other than "approved" blocks the release.
+    |
+    |   HERO_ASSET_STATUS    temporary | approved   – the hero photo/render licence + brand fit
+    |   LEGAL_CONTENT_STATUS draft     | approved   – Terms & Privacy texts approved by the client
+    */
+    'release' => [
+        'hero_asset_status' => env('HERO_ASSET_STATUS', 'temporary'),
+        'legal_content_status' => env('LEGAL_CONTENT_STATUS', 'draft'),
+        // Files that identify the temporary (template) hero visual; the production
+        // gate refuses them in og:image / schema and, while the status is "temporary", in the hero.
+        'temporary_hero_files' => ['assets/imgs/hero/hero.jpg', 'assets/imgs/hero/hero.webp'],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Analytics vendor (Google Tag Manager)
+    |--------------------------------------------------------------------------
+    | The public pages push events to window.dataLayer (see ADR-13). The GTM
+    | container is injected only when an ID is configured AND analytics are
+    | enabled for this environment (default: production host only). Vendor tags
+    | live in the container, never in templates. Additional snippets may still
+    | be pasted in admin → Settings → head scripts.
+    */
+    'analytics' => [
+        'gtm_id' => env('ANALYTICS_GTM_ID', ''),
+        // null = enabled automatically on the production host only; true/false force it (e.g. GTM preview on staging)
+        'enabled' => env('ANALYTICS_ENABLED'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Content-Security-Policy for the public site (ADR-24)
+    |--------------------------------------------------------------------------
+    | off | report-only | enforce. Applies to public routes only – Filament /
+    | Livewire under /admin need inline/eval and keep the Stage-1 headers.
+    */
+    'csp' => env('CSP_MODE', 'report-only'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Production assets
+    |--------------------------------------------------------------------------
+    | `node scripts/build-assets.cjs` writes autostvabaks.min.css / .min.js next
+    | to the readable sources. Site::asset() serves the .min twin when it exists
+    | and is not older than the source (so an edited source never ships stale).
+    */
+    'minified_assets' => (bool) env('ASSETS_MINIFIED', true),
 ];

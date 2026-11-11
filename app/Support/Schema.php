@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\Faq;
 use Illuminate\Support\Collection;
 
 /**
@@ -19,7 +20,7 @@ class Schema
 {
     public const JSON_FLAGS = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP;
 
-    /** @param  Collection<int, \App\Models\Faq>|null  $faqs */
+    /** @param  Collection<int, Faq>|null  $faqs */
     public static function home(?Collection $faqs = null): array
     {
         $home = Site::route('home', [], Site::defaultLocale());
@@ -38,6 +39,7 @@ class Schema
                 'email' => Site::setting('public_email'),
                 'telephone' => Site::setting('phone'),
                 'brand' => ['@id' => $brandId],
+                'logo' => asset(config('autostvabaks.brand.logo')),
                 'address' => static::address(),
                 'areaServed' => Site::fact('service_area'),
             ]),
@@ -46,7 +48,7 @@ class Schema
                 '@id' => $brandId,
                 'name' => Site::fact('brand'),
                 'url' => $home,
-                'logo' => asset('assets/imgs/brand/favicon.svg'),
+                'logo' => asset(config('autostvabaks.brand.logo')),
             ],
             [
                 '@type' => 'WebSite',
@@ -65,7 +67,7 @@ class Schema
                 'inLanguage' => app()->getLocale(),
                 'isPartOf' => ['@id' => $siteId],
                 'about' => ['@id' => $serviceId],
-                'primaryImageOfPage' => asset('assets/imgs/hero/hero.jpg'),
+                'primaryImageOfPage' => Site::ogImage(),
             ],
             [
                 '@type' => 'Service',
