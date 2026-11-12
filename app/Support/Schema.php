@@ -42,6 +42,11 @@ class Schema
                 'logo' => asset(config('autostvabaks.brand.logo')),
                 'address' => static::address(),
                 'areaServed' => Site::fact('service_area'),
+                // client-confirmed company identifiers (Stage 4, fact F16/F17)
+                'vatID' => Site::fact('vat_number'),
+                'identifier' => Site::fact('registry_code') ? [
+                    '@type' => 'PropertyValue', 'propertyID' => 'Registrikood', 'value' => Site::fact('registry_code'),
+                ] : null,
             ]),
             [
                 '@type' => 'Brand',

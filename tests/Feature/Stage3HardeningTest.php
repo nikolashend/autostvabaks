@@ -268,7 +268,7 @@ class Stage3HardeningTest extends TestCase
         Testimonial::query()->update(['is_active' => false]);
         // approved legal texts without draft markers, so only the explicit statuses remain
         foreach (Page::all() as $page) {
-            $page->update(['content' => ['et' => '<p>Lõplik tekst.</p>', 'ru' => '<p>Финальный текст.</p>', 'en' => '<p>Final text.</p>']]);
+            $page->update(['content' => ['et' => '<p>Lõplik tekst. Teenuse osutaja: Motion Motors OÜ.</p>', 'ru' => '<p>Финальный текст. Оператор: Motion Motors OÜ.</p>', 'en' => '<p>Final text. Operator: Motion Motors OÜ.</p>']]);
         }
 
         $this->artisan('site:release-check --strict')

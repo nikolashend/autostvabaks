@@ -74,7 +74,7 @@
             <div>
                 <p>© {{ date('Y') }} {{ config('app.name') }}. {{ __('site.footer.rights') }}</p>
                 {{-- Legal operator / data controller (fact F2): discreet relationship line, no second brand identity --}}
-                <p class="asv-footer__operator">{{ __('site.footer.operator', ['operator' => Site::legalEntity()]) }}</p>
+                <p class="asv-footer__operator">{{ __('site.footer.operator', ['operator' => Site::legalEntity(), 'code' => Site::fact('registry_code')]) }}</p>
             </div>
             <a class="asv-footer__top" href="#main">{{ __('site.footer.top') }} <x-asv-icon name="arrow-up" size="16" /></a>
         </div>

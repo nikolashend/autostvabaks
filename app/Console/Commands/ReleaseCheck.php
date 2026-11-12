@@ -63,12 +63,24 @@ class ReleaseCheck extends Command
 
         // --- human sign-offs (Stage 3 gates) --------------------------------
         $hero = (string) config('autostvabaks.release.hero_asset_status');
+        $temporaryHero = config('autostvabaks.release.temporary_hero_files', []);
         if ($hero !== 'approved') {
-            $this->report($production, "HERO_ASSET_STATUS={$hero} – the hero visual is still the temporary template asset (licence/brand not production-grade). Replace it per the Stage-2 brief and set HERO_ASSET_STATUS=approved.");
+            $this->report($production, "HERO_ASSET_STATUS={$hero} – the hero visual is not signed off. Replace the asset (ADR-32), delete the temporary files and set HERO_ASSET_STATUS=approved.");
+        }
+        // "approved" is a statement about the asset, not a switch: it is contradicted by a temporary file on disk or a missing production file.
+        foreach ($temporaryHero as $file) {
+            if (is_file(public_path($file))) {
+                $this->report($production || $hero === 'approved', "Temporary hero file {$file} still exists in public/ – delete it (the gate never trusts HERO_ASSET_STATUS while it is present).");
+            }
+        }
+        foreach (config('autostvabaks.release.hero_files', []) as $file) {
+            if (! is_file(public_path($file))) {
+                $this->block("Production hero file {$file} is missing.");
+            }
         }
         $legal = (string) config('autostvabaks.release.legal_content_status');
         if ($legal !== 'approved') {
-            $this->report($production, "LEGAL_CONTENT_STATUS={$legal} – Terms / Privacy texts are not client-approved. Publish the approved texts in admin → Pages and set LEGAL_CONTENT_STATUS=approved.");
+            $this->report($production, "LEGAL_CONTENT_STATUS={$legal} – Terms / Privacy texts are not client-approved. After approval run `php artisan db:seed --class=PageSeeder --force` with LEGAL_CONTENT_STATUS=approved (ADR-33).");
         }
 
         // --- analytics / assets --------------------------------------------
@@ -91,6 +103,7 @@ class ReleaseCheck extends Command
             $this->report($production, 'Active placeholder testimonials: '.$placeholders->pluck('author')->join(', ').' (they are hidden outside local, but should be deleted or deactivated).');
         }
 
+        $placeholderMarkers = config('autostvabaks.placeholder_markers', []);
         foreach (Page::active()->get() as $page) {
             foreach (array_keys(Site::locales()) as $locale) {
                 $text = strip_tags((string) $page->t('content', $locale));
@@ -100,8 +113,15 @@ class ReleaseCheck extends Command
                         break;
                     }
                 }
+                foreach ($placeholderMarkers as $marker) {
+                    if (mb_stripos($text, $marker) !== false) {
+                        $this->report($production, "Page \"{$page->t('title', $locale)}\" ({$locale}) contains the placeholder \"{$marker}\".");
+                        break;
+                    }
+                }
             }
         }
+        $this->checkLegalPages($production);
 
         // --- rendered public pages ----------------------------------------
         // The staging host must never appear in production output; on staging itself it is expected.
@@ -155,6 +175,11 @@ class ReleaseCheck extends Command
                     }
                 }
             }
+            foreach ($temporaryHero as $file) {
+                if (str_contains($html, $file)) {
+                    $this->report($production, "{$url} still references the temporary hero asset {$file}.");
+                }
+            }
         }
 
         // --- sitemap: every URL must be a live, self-canonical, indexable production route ----
@@ -177,6 +202,40 @@ class ReleaseCheck extends Command
         $this->info('Release check passed'.($this->warnings ? ' with '.count($this->warnings).' warning(s)' : '').'.');
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Terms / Privacy: every locale resolves 200, carries the legal operator, is linked
+     * from the footer and (terms) from the form consent line – TZ Stage 4 §15.
+     */
+    private function checkLegalPages(bool $production): void
+    {
+        $operator = Site::legalEntity();
+        foreach (['terms', 'privacy'] as $key) {
+            $page = Page::byKey($key);
+            if (! $page || ! $page->is_active) {
+                $this->report($production, "Legal page \"{$key}\" is missing or inactive.");
+
+                continue;
+            }
+            foreach (array_keys(Site::locales()) as $locale) {
+                $url = $page->url($locale);
+                $html = $this->render($url);
+                if ($html === null) {
+                    $this->report($production, "Legal page {$url} does not return 200.");
+
+                    continue;
+                }
+                // the footer names the operator on every page – the legal text itself must do so too
+                if (! str_contains(strip_tags((string) $page->t('content', $locale)), $operator)) {
+                    $this->report($production, "Legal page {$url} does not name the legal operator ({$operator}).");
+                }
+                $home = $this->render(Site::route('home', [], $locale)) ?? '';
+                if (! str_contains($home, 'href="'.$url.'"')) {
+                    $this->report($production, "Legal page {$url} is not linked from the {$locale} home page (footer / consent line).");
+                }
+            }
+        }
     }
 
     private function checkSitemap(bool $production, string $appUrl): void

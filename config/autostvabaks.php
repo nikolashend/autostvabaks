@@ -38,6 +38,9 @@ return [
     'facts' => [
         'brand' => 'Autostvabaks',
         'legal_entity' => 'Motion Motors OÜ',
+        // Stage 4 (client-supplied, authoritative): company registry code and VAT number of the operator
+        'registry_code' => '17341567',
+        'vat_number' => 'EE102908916',
         'address' => [
             'street' => 'Meistri 20',
             'city' => 'Tallinn',
@@ -158,9 +161,20 @@ return [
     'release' => [
         'hero_asset_status' => env('HERO_ASSET_STATUS', 'temporary'),
         'legal_content_status' => env('LEGAL_CONTENT_STATUS', 'draft'),
-        // Files that identify the temporary (template) hero visual; the production
-        // gate refuses them in og:image / schema and, while the status is "temporary", in the hero.
-        'temporary_hero_files' => ['assets/imgs/hero/hero.jpg', 'assets/imgs/hero/hero.webp'],
+        // Files that identified the temporary (template) hero visual. They were deleted in Stage 4
+        // (ADR-32); the gate still refuses any reference to them in og:image / schema / hero and
+        // blocks "approved" while one of them exists on disk.
+        'temporary_hero_files' => [
+            'assets/imgs/hero/hero.jpg', 'assets/imgs/hero/hero.webp',
+            'assets/imgs/hero/hero-mobile.jpg', 'assets/imgs/hero/hero-mobile.webp',
+            'assets/imgs/hero/hero-mobile-card.jpg', 'assets/imgs/hero/hero-mobile-card.webp',
+        ],
+        // Production hero (Stage 4): Pexels photo 20695262 by Erik Mclean, Pexels licence (free for
+        // commercial use, modification allowed, no attribution required); crops in public/assets/imgs/hero/hero-coast.*
+        'hero_files' => [
+            'assets/imgs/hero/hero-coast.avif', 'assets/imgs/hero/hero-coast.webp', 'assets/imgs/hero/hero-coast.jpg',
+            'assets/imgs/hero/hero-coast-mobile.webp', 'assets/imgs/hero/hero-coast-mobile.jpg',
+        ],
     ],
 
     /*

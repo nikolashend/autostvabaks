@@ -221,7 +221,7 @@ return [
         'info' => 'Kasulik info',
         'legal' => 'Juriidiline info',
         // Legal operator / data controller line (F2) – discreet, factual, no second brand identity
-        'operator' => 'Autostvabaks teenuse osutaja: :operator',
+        'operator' => 'Autostvabaks teenuse osutaja: :operator (registrikood :code)',
         'rights' => 'Kõik õigused kaitstud.',
         'top' => 'Tagasi üles',
     ],

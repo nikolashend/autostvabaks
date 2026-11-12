@@ -216,7 +216,7 @@ return [
         'links' => 'Ссылки',
         'info' => 'Полезная информация',
         'legal' => 'Юридическая информация',
-        'operator' => 'Услугу Autostvabaks оказывает :operator',
+        'operator' => 'Услугу Autostvabaks оказывает :operator (рег. код :code)',
         'rights' => 'Все права защищены.',
         'top' => 'Наверх',
     ],

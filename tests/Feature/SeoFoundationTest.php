@@ -239,7 +239,7 @@ class SeoFoundationTest extends TestCase
     {
         $this->simulateProduction();
         Testimonial::query()->update(['is_active' => false]);
-        Page::query()->update(['content' => ['et' => '<p>ok</p>', 'ru' => '<p>ok</p>', 'en' => '<p>ok</p>']]);
+        Page::query()->update(['content' => ['et' => '<p>Teenuse osutaja: Motion Motors OÜ.</p>', 'ru' => '<p>Оператор: Motion Motors OÜ.</p>', 'en' => '<p>Operator: Motion Motors OÜ.</p>']]);
         // Stage-3 human sign-off gates (tested separately in Stage3HardeningTest)
         config(['autostvabaks.release.hero_asset_status' => 'approved', 'autostvabaks.release.legal_content_status' => 'approved']);
 

@@ -21,6 +21,8 @@ Source of truth for every statement in copy, metadata, schema and ads. Classes: 
 | F14 | Direct buyback = simplicity/speed, offer follows market value not asking prices (expectation message; no margin discussion, no "maximum price" claim) | `#hindamine` expectation | Stage-3 TZ §27 |
 | F15 | Bank transfer is the normal method, cash possible on request | answers card 3, FAQ `payment` | client (F7) |
 | F12 | E-mail required; price, photos optional | form | client |
+| F16 | Company registry code 17341567 (Motion Motors OÜ) | footer operator line, JSON-LD Organization `identifier`, Terms §1, Privacy §6 | client (Stage-4 TZ §12) |
+| F17 | VAT number EE102908916 | JSON-LD Organization `vatID`, Terms §1, Privacy §6 | client (Stage-4 TZ §12) |
 
 ## 2. Pending facts (must not be invented)
 
@@ -29,13 +31,13 @@ Source of truth for every statement in copy, metadata, schema and ads. Classes: 
 | P1 | Public phone number | empty → no tel: link, no "call", no schema telephone |
 | P2 | WhatsApp number | empty → no button |
 | P3 | Telegram | empty → no button |
-| P4 | Company registry code / VAT (for legal pages) | not shown; legal pages are drafts |
+| P4 | ~~Company registry code / VAT~~ | **CONFIRMED** in Stage 4 → F16/F17 |
 | P5 | Opening hours | deliberately none (client: do not show) |
 | P6 | ~~Approved logo / colours~~ | **APPLIED** in Stage 2 (ADR-17) |
-| P7 | Final legal texts (Terms, Privacy) | seeded drafts marked "Mustand"; `LEGAL_CONTENT_STATUS=draft` blocks production (ADR-26). **LEGAL_CONTENT_READY = NO** |
+| P7 | Final legal texts (Terms, Privacy) | seeded drafts now carry the full operator facts (F2, F3, F16, F17) and are consistent across ET/RU/EN; still marked "Mustand" until the client approves them. Activation = `LEGAL_CONTENT_STATUS=approved` + `db:seed --class=PageSeeder --force` (ADR-33). **LEGAL_CONTENT_READY = NO (awaiting client approval, Stage-4 H1)** |
 | P8 | "Päringu saatmine ei kohusta autot müüma" (no-obligation statement) | **not published** on the landing until the client confirms; the seeded draft Terms contain the sentence – final Terms and landing must agree. Test asserts the landing does not contain "ei kohusta" |
 | P9 | Documents needed for the deal | unknown → no documents answer (slot stays empty), FAQ does not mention documents |
-| P10 | Hero visual licence / brand asset | template photo, `HERO_ASSET_STATUS=temporary` blocks production; brief in Stage-2 report §13 |
+| P10 | ~~Hero visual licence / brand asset~~ | **APPLIED** in Stage 4 (ADR-32): Pexels 20695262 by Erik Mclean, Pexels licence (commercial use, modification allowed, no attribution required); template files deleted; `HERO_ASSET_STATUS=approved`. Client visual sign-off recorded as Stage-4 H2 |
 | P11 | Real reviews, real Meistri 20 photo | not supplied; reviews hidden, map facade kept |
 
 ## 3. Proof-required claims (allowed only with evidence)
@@ -63,3 +65,10 @@ Source of truth for every statement in copy, metadata, schema and ads. Classes: 
 - ET/RU/EN `site.php` strings reviewed: no prohibited claims found. "Kiire vastus / Быстрый ответ / Fast reply" (why block) is acceptable only with F11 wording underneath (it is). Stage 4 may soften to "Vastame esimesel võimalusel".
 - Contact lead text now conditional: "write or call" only with P1 confirmed.
 - Legal drafts: name Motion Motors OÜ as controller (correct) — replace with final texts (P7).
+
+## 7. Copy audit (Stage 4, 2026-11-12)
+
+- No copy change on the landing except the footer operator line, which now carries the registry code (F16). Titles, H1s, meta, FAQ, answers: identical to Stage 3 (frozen).
+- Legal drafts: operator paragraph rewritten with F2/F3/F16/F17 in ET/RU/EN; the rest of the structure unchanged; the P8 sentence remains in Terms §3 only. No prohibited fragment in page content (release-check scans legal pages for placeholder markers as well).
+- Schema: Organization gains `vatID` and `identifier` (F17/F16); no ratings, hours, phone or temporary image.
+- Hero: real photograph, no plate/badge/people/location claim (ADR-32). OG images unchanged.

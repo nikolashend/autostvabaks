@@ -43,10 +43,11 @@ php artisan serve --port=8010
 | Что | Где |
 |---|---|
 | Финальные тексты лендинга (Stage 3), title/description | `lang/et/site.php`, `lang/ru/site.php`, `lang/en/site.php` — каждое утверждение сверяется с `docs/autostvabaks/AUTOSTVABAKS_FACT_CLAIM_REGISTER_V1.md`; запрещённые формулировки — `config/autostvabaks.php` → `prohibited_claims` (тест + release-check) |
+| Юр. страницы (Terms/Privacy, черновики с реквизитами Motion Motors OÜ: рег. код 17341567, KMKR EE102908916) | `database/seeders/PageSeeder.php`; пока на странице есть маркер «Mustand/Черновик/Draft», сидер обновляет текст; после утверждения клиентом — `LEGAL_CONTENT_STATUS=approved` + `php artisan db:seed --class=PageSeeder --force` публикует без маркера (ADR-33) |
 | FAQ (9 согласованных вопросов) | `database/seeders/FaqSeeder.php` (ключи `vehicles … payment`); публикация на сервере: `php artisan db:seed --class=FaqSeeder --force` — перезаписывает правки этих вопросов в админке |
 | Цвета бренда / токены | `public/assets/css/autostvabaks.css` → `:root` (`--asv-brand-primary`, `--asv-brand-dark`, …) и `config/autostvabaks.php` → `brand` (админка, theme-color) |
 | Логотип | компонент `resources/views/components/asv-logo.blade.php` → `public/assets/imgs/brand/logo.svg` (светлый фон) / `logo-white.svg` (тёмный). Оригиналы Олега — `resources/brand/source/` (не редактировать) |
-| Фон первого экрана (временный, `HERO_ASSET_STATUS=temporary` блокирует production) | `public/assets/imgs/hero/hero.webp|jpg` (десктоп), `hero-mobile-card.webp|jpg` (телефоны, 16:9 под формой). Бриф на замену — отчёт Stage 2 §13; после замены — `HERO_ASSET_STATUS=approved` |
+| Фон первого экрана (production, Stage 4) | `public/assets/imgs/hero/hero-coast.avif|webp|jpg` (1920×1080, десктоп), `hero-coast-mobile.webp|jpg` (800×450, телефоны, под формой). Источник: Pexels 20695262 (Erik Mclean, лицензия Pexels), ADR-32. Старые файлы `hero.*`/`hero-mobile*` удалены — release-check блокирует их появление |
 | OG / социальная картинка | `public/assets/imgs/brand/og-{et,ru,en}.jpg` (1200×630, бренд-композиция) |
 | Минифицированные CSS/JS | `node scripts/build-assets.cjs` (esbuild из `motionmotors/node_modules`) → `autostvabaks.min.css|js`; после правки исходников пересобрать и закоммитить, иначе отдаётся исходник (`Site::asset`) |
 | Аналитика (GTM) | `.env`: `ANALYTICS_GTM_ID=GTM-XXXX`, `ANALYTICS_ENABLED` (по умолчанию только production-хост); события — `window.dataLayer` (см. master baseline §12) |
@@ -74,6 +75,8 @@ ssh autostvabaks "cd ~/www/autostvabaks.adme.ee && bash deploy.sh"
 ```
 
 ## Деплой (production, autostvabaks.ee)
+
+Полная процедура активации production (панель reg.ru, `.env`, порядок деплоя, DNS zone.ee, проверка, откат, Search Console): `docs/autostvabaks/AUTOSTVABAKS_STAGE4_GO_LIVE.md`. Почта production — только через SMTP Google Workspace (SPF/DMARC домена), не через SMTP хостинга.
 
 1. `.env`: `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://autostvabaks.ee`, `SITE_NOINDEX=false`, `STAGING_AUTH=` (пусто), доступы к БД, боевой **SMTP** вместо Mailtrap (`MAIL_FROM_ADDRESS=info@autostvabaks.ee`), `HERO_ASSET_STATUS=approved` и `LEGAL_CONTENT_STATUS=approved` (только после реальной замены hero и утверждения юр. текстов), `ANALYTICS_GTM_ID` при наличии контейнера.
 0. Перед выкладкой: `php artisan site:release-check --strict` должен пройти без FAIL (гейты: noindex, debug, staging auth, placeholder-отзывы, черновики, запрещённые формулировки, временный hero/OG, sitemap).

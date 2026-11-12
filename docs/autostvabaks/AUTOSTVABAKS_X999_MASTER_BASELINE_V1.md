@@ -1,6 +1,6 @@
 # AUTOSTVABAKS — X999 MASTER BASELINE V1
 
-**Status: FROZEN (Stage 1, 2026-11-09; §2, §11, §13, §15 amended by Stage 2 on 2026-11-10 per ADR-17…22; §4, §5, §12 amended and §17 added by Stage 3 on 2026-11-11 per ADR-23…31).** Every later task (Stage 3–5) starts by reading this file. It is the project constitution: change it only by a deliberate, documented decision (append to `AUTOSTVABAKS_ARCHITECTURE_DECISIONS_V1.md`).
+**Status: FROZEN (Stage 1, 2026-11-09; §2, §11, §13, §15 amended by Stage 2 on 2026-11-10 per ADR-17…22; §4, §5, §12 amended and §17 added by Stage 3 on 2026-11-11 per ADR-23…31; §1 amended and §18 added by Stage 4 on 2026-11-12 per ADR-32…35).** Every later task (Stage 3–5) starts by reading this file. It is the project constitution: change it only by a deliberate, documented decision (append to `AUTOSTVABAKS_ARCHITECTURE_DECISIONS_V1.md`).
 
 ## 1. Identity
 
@@ -9,6 +9,8 @@
 | Public brand | **Autostvabaks** | CONFIRMED |
 | Legal operator / data controller | **Motion Motors OÜ** | CONFIRMED |
 | Address | Meistri 20, Tallinn 13517, Estonia | CONFIRMED |
+| Registry code | 17341567 | CONFIRMED (Stage 4) |
+| VAT number | EE102908916 | CONFIRMED (Stage 4) |
 | Service | Car buyback — *autode kokkuost / auto väljaost* | CONFIRMED |
 | Service area | All Estonia | CONFIRMED |
 | Vehicles accepted | Any make/age/condition, incl. damaged/faulty, incl. under leasing/credit | CONFIRMED (client brief) |
@@ -111,3 +113,7 @@ Approved logo component and tokens · hero composition copy → form → fact st
 ## 17. Stage-3 protected strengths (added 2026-11-11; do not regress in Stage 4+)
 
 Final ET/RU/EN copy in `lang/*/site.php` written against the fact register (no prohibited claims; scanner in test + release-check) · category-first titles, native H1s (ADR-31) · 9 keyed FAQ records = visible accordion = FAQPage schema (`FaqSeeder` content release, ADR-23) · valuation section with expectation message (F13/F14) · leasing / damaged / payment direct answers (F6/F5/F15) · legal operator line in the footer (F2) · brand OG images per locale, release gates `HERO_ASSET_STATUS` / `LEGAL_CONTENT_STATUS` (ADR-26) · production robots with `OAI-SearchBot` (ADR-25) · nonce CSP report-only on public pages (ADR-24) · HTML sanitiser for CMS pages (ADR-30) · lead-mail attachment budget + admin deep-link (ADR-27) · GTM switch (ADR-28) · minified twins + host caching (ADR-29) · 38 tests / 527 assertions green.
+
+## 18. Stage-4 production release candidate (added 2026-11-12; do not regress)
+
+Licensed real-photo hero `hero-coast.*` (AVIF/WebP/JPEG 1920×1080 + 16:9 mobile card; template files deleted; gate verifies files and references, ADR-32) · operator facts F16/F17 in footer, schema and legal drafts; seeder-owned drafts with one-step approval (ADR-33) · release-check extended: hero files on disk, legal pages 200/operator/linked, placeholder scan on page content · production activation procedure `AUTOSTVABAKS_STAGE4_GO_LIVE.md` (pre-flight, `.env`, deploy order, DNS before/after, verification, rollback, GSC) · launch states: CSP report-only, analytics disabled pending approval (ADR-35), mail must go through Google Workspace SMTP (ADR-34) · 42 tests / 626 assertions green.

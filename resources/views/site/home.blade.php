@@ -19,7 +19,8 @@
 
 @push('head')
     {{-- the backdrop is only part of the first screen on desktop; phones get the visual below the form --}}
-    <link rel="preload" as="image" href="{{ asset('assets/imgs/hero/hero.webp') }}" type="image/webp" media="(min-width: 992px)">
+    {{-- AVIF preload: browsers without AVIF ignore it (unsupported type) and pick the WebP/JPEG source from <picture> --}}
+    <link rel="preload" as="image" href="{{ asset('assets/imgs/hero/hero-coast.avif') }}" type="image/avif" media="(min-width: 992px)">
     @include('site.partials.schema')
 @endpush
 
@@ -28,10 +29,12 @@
     {{-- ============ HERO: copy + step 1 of the request form + fact strip ============ --}}
     <section class="asv-hero" id="paring" aria-labelledby="hero-title">
         <picture class="asv-hero__bg" aria-hidden="true">
-            <source media="(min-width: 992px)" type="image/webp" srcset="{{ asset('assets/imgs/hero/hero.webp') }}">
-            <source media="(min-width: 992px)" srcset="{{ asset('assets/imgs/hero/hero.jpg') }}">
+            {{-- Stage 4 production hero (ADR-32): licensed photo, car on the right, no plate; AVIF → WebP → JPEG --}}
+            <source media="(min-width: 992px)" type="image/avif" srcset="{{ asset('assets/imgs/hero/hero-coast.avif') }}">
+            <source media="(min-width: 992px)" type="image/webp" srcset="{{ asset('assets/imgs/hero/hero-coast.webp') }}">
+            <source media="(min-width: 992px)" srcset="{{ asset('assets/imgs/hero/hero-coast.jpg') }}">
             {{-- below 992px the picture is display:none; a 1×1 transparent GIF keeps browsers from fetching the desktop file --}}
-            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="" width="1920" height="893" fetchpriority="high" decoding="async">
+            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="" width="1920" height="1080" fetchpriority="high" decoding="async">
         </picture>
 
         <div class="container">
@@ -132,8 +135,8 @@
             {{-- Supporting visual for phones/tablets (lazy, never above the form) --}}
             {{-- 16:9 card-sized derivative (800×450) – the 900×1200 portrait is not downloaded for a small card --}}
             <picture class="asv-hero__visual" aria-hidden="true">
-                <source type="image/webp" srcset="{{ asset('assets/imgs/hero/hero-mobile-card.webp') }}">
-                <img src="{{ asset('assets/imgs/hero/hero-mobile-card.jpg') }}" alt="" width="800" height="450" loading="lazy" decoding="async">
+                <source type="image/webp" srcset="{{ asset('assets/imgs/hero/hero-coast-mobile.webp') }}">
+                <img src="{{ asset('assets/imgs/hero/hero-coast-mobile.jpg') }}" alt="" width="800" height="450" loading="lazy" decoding="async">
             </picture>
         </div>
     </section>

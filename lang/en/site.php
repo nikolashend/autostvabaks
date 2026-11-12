@@ -216,7 +216,7 @@ return [
         'links' => 'Links',
         'info' => 'Useful information',
         'legal' => 'Legal',
-        'operator' => 'The Autostvabaks service is provided by :operator',
+        'operator' => 'The Autostvabaks service is provided by :operator (registry code :code)',
         'rights' => 'All rights reserved.',
         'top' => 'Back to top',
     ],

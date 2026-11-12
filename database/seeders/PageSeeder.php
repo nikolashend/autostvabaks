@@ -8,44 +8,90 @@ use Illuminate\Database\Seeder;
 /**
  * System pages linked from the form and the footer.
  *
- * IMPORTANT: the texts below are structural DRAFTS, not legal advice. They must be
- * reviewed and replaced with the final Kasutustingimused / Privaatsuspoliitika
- * (admin panel → Страницы) before the site is published.
+ * IMPORTANT: the texts below are structural DRAFTS, not legal advice. They carry
+ * the client-confirmed operator facts (Motion Motors OÜ, registry code, VAT,
+ * address – config autostvabaks.facts) and must be reviewed by the client
+ * before the site is published.
+ *
+ * Release workflow (Stage 4, ADR-33):
+ *  - while a page still carries the draft marker, re-running the seeder refreshes
+ *    its text from here (the seeder owns unapproved drafts; admin edits that removed
+ *    the marker are never overwritten);
+ *  - with LEGAL_CONTENT_STATUS=approved the seeder writes the texts WITHOUT the
+ *    draft marker – run it once after the client has approved exactly these texts:
+ *      php artisan db:seed --class=PageSeeder --force
  */
 class PageSeeder extends Seeder
 {
     public function run(): void
     {
         $operator = config('autostvabaks.settings.operator_name', 'Motion Motors OÜ');
+        $registry = config('autostvabaks.facts.registry_code');
+        $vat = config('autostvabaks.facts.vat_number');
         $address = config('autostvabaks.settings.address');
         $email = config('autostvabaks.settings.public_email');
+        $approved = config('autostvabaks.release.legal_content_status') === 'approved';
 
-        $draft = [
+        $operatorLine = [
+            'et' => "{$operator} (registrikood {$registry}, KMKR nr {$vat}), {$address}, Eesti",
+            'ru' => "{$operator} (регистрационный код {$registry}, номер КМКР {$vat}), {$address}, Эстония",
+            'en' => "{$operator} (registry code {$registry}, VAT no. {$vat}), {$address}, Estonia",
+        ];
+
+        $draft = $approved ? ['et' => '', 'ru' => '', 'en' => ''] : [
             'et' => '<p><em>Mustand – lõplik tekst lisatakse enne lehe avalikustamist.</em></p>',
             'ru' => '<p><em>Черновик – окончательный текст будет добавлен до публикации сайта.</em></p>',
             'en' => '<p><em>Draft – the final text will be added before the site is published.</em></p>',
         ];
 
-        Page::firstOrCreate(['key' => 'terms'], [
-            'slug_et' => 'kasutustingimused',
-            'slug_ru' => 'usloviya-ispolzovaniya',
-            'slug_en' => 'terms-of-use',
-            'footer_group' => 'legal',
-            'sort' => 10,
-            'title' => [
-                'et' => 'Kasutustingimused',
-                'ru' => 'Условия использования',
-                'en' => 'Terms of use',
-            ],
-            'meta_description' => [
-                'et' => 'Autostvabaks veebilehe ja päringuvormi kasutustingimused.',
-                'ru' => 'Условия использования сайта и формы заявки Autostvabaks.',
-                'en' => 'Terms of use of the Autostvabaks website and request form.',
-            ],
-            'content' => [
-                'et' => $draft['et'].<<<HTML
+        foreach ($this->pages($draft, $operatorLine, $email) as $key => $attributes) {
+            $page = Page::where('key', $key)->first();
+            if (! $page) {
+                Page::create(['key' => $key] + $attributes);
+
+                continue;
+            }
+            // refresh only pages that are still seeder-owned drafts (marker present in every locale)
+            $isDraft = collect(['et', 'ru', 'en'])->every(function (string $locale) use ($page) {
+                $text = strip_tags((string) $page->t('content', $locale));
+                foreach (config('autostvabaks.draft_markers', []) as $marker) {
+                    if (mb_stripos($text, $marker) !== false) {
+                        return true;
+                    }
+                }
+
+                return false;
+            });
+            if ($isDraft) {
+                $page->update(['content' => $attributes['content'], 'meta_description' => $attributes['meta_description']]);
+            }
+        }
+    }
+
+    /** @return array<string, array<string, mixed>> */
+    private function pages(array $draft, array $operatorLine, string $email): array
+    {
+        return [
+            'terms' => [
+                'slug_et' => 'kasutustingimused',
+                'slug_ru' => 'usloviya-ispolzovaniya',
+                'slug_en' => 'terms-of-use',
+                'footer_group' => 'legal',
+                'sort' => 10,
+                'title' => [
+                    'et' => 'Kasutustingimused',
+                    'ru' => 'Условия использования',
+                    'en' => 'Terms of use',
+                ],
+                'meta_description' => [
+                    'et' => 'Autostvabaks veebilehe ja päringuvormi kasutustingimused.',
+                    'ru' => 'Условия использования сайта и формы заявки Autostvabaks.',
+                    'en' => 'Terms of use of the Autostvabaks website and request form.',
+                ],
+                'content' => [
+                    'et' => $draft['et'].<<<HTML
 <h2>1. Üldsätted</h2>
-<p>Käesolevad tingimused kehtivad veebilehe autostvabaks.ee ja sellel oleva päringuvormi kasutamisel. Päringu saatmisega kinnitad, et oled tingimustega tutvunud ja nõustud nendega.</p>
+<p>Veebilehte autostvabaks.ee ja Autostvabaks teenust haldab {$operatorLine['et']}. Käesolevad tingimused kehtivad veebilehe ja sellel oleva päringuvormi kasutamisel. Päringu saatmisega kinnitad, et oled tingimustega tutvunud ja nõustud nendega.</p>
 <h2>2. Teenuse kirjeldus</h2>
 <p>Autostvabaks võtab vastu sõidukite müügisoove ning teeb sobivuse korral sõiduki ostupakkumise. Ostame sõidukeid üle kogu Eesti, olenemata sõiduki seisukorrast.</p>
 <h2>3. Päring ja pakkumine</h2>
@@ -63,9 +109,9 @@ class PageSeeder extends Seeder
 <h2>7. Kontakt</h2>
 <p>Küsimuste korral kirjuta meile: <a href="mailto:{$email}">{$email}</a>.</p>
 HTML,
-                'ru' => $draft['ru'].<<<HTML
+                    'ru' => $draft['ru'].<<<HTML
 <h2>1. Общие положения</h2>
-<p>Настоящие условия действуют при использовании сайта autostvabaks.ee и размещённой на нём формы заявки. Отправляя заявку, вы подтверждаете, что ознакомились с условиями и согласны с ними.</p>
+<p>Сайт autostvabaks.ee и услугу Autostvabaks предоставляет {$operatorLine['ru']}. Настоящие условия действуют при использовании сайта и размещённой на нём формы заявки. Отправляя заявку, вы подтверждаете, что ознакомились с условиями и согласны с ними.</p>
 <h2>2. Описание услуги</h2>
 <p>Autostvabaks принимает заявки на продажу автомобилей и при заинтересованности делает предложение о выкупе. Мы выкупаем автомобили по всей Эстонии независимо от их состояния.</p>
 <h2>3. Заявка и предложение</h2>
@@ -83,9 +129,9 @@ HTML,
 <h2>7. Контакты</h2>
 <p>По вопросам пишите нам: <a href="mailto:{$email}">{$email}</a>.</p>
 HTML,
-                'en' => $draft['en'].<<<HTML
+                    'en' => $draft['en'].<<<HTML
 <h2>1. General</h2>
-<p>These terms apply to the use of the autostvabaks.ee website and its request form. By sending a request you confirm that you have read and accept these terms.</p>
+<p>The autostvabaks.ee website and the Autostvabaks service are operated by {$operatorLine['en']}. These terms apply to the use of the website and its request form. By sending a request you confirm that you have read and accept these terms.</p>
 <h2>2. The service</h2>
 <p>Autostvabaks accepts requests to sell vehicles and, where suitable, makes an offer to buy the vehicle. We buy vehicles all over Estonia regardless of their condition.</p>
 <h2>3. Request and offer</h2>
@@ -103,27 +149,27 @@ HTML,
 <h2>7. Contact</h2>
 <p>If you have any questions, write to us: <a href="mailto:{$email}">{$email}</a>.</p>
 HTML,
+                ],
             ],
-        ]);
 
-        Page::firstOrCreate(['key' => 'privacy'], [
-            'slug_et' => 'privaatsuspoliitika',
-            'slug_ru' => 'politika-konfidentsialnosti',
-            'slug_en' => 'privacy-policy',
-            'footer_group' => 'legal',
-            'sort' => 20,
-            'title' => [
-                'et' => 'Privaatsuspoliitika',
-                'ru' => 'Политика конфиденциальности',
-                'en' => 'Privacy policy',
-            ],
-            'meta_description' => [
-                'et' => 'Kuidas Autostvabaks isikuandmeid kogub, kasutab ja säilitab.',
-                'ru' => 'Как Autostvabaks собирает, использует и хранит персональные данные.',
-                'en' => 'How Autostvabaks collects, uses and stores personal data.',
-            ],
-            'content' => [
-                'et' => $draft['et'].<<<HTML
+            'privacy' => [
+                'slug_et' => 'privaatsuspoliitika',
+                'slug_ru' => 'politika-konfidentsialnosti',
+                'slug_en' => 'privacy-policy',
+                'footer_group' => 'legal',
+                'sort' => 20,
+                'title' => [
+                    'et' => 'Privaatsuspoliitika',
+                    'ru' => 'Политика конфиденциальности',
+                    'en' => 'Privacy policy',
+                ],
+                'meta_description' => [
+                    'et' => 'Kuidas Autostvabaks isikuandmeid kogub, kasutab ja säilitab.',
+                    'ru' => 'Как Autostvabaks собирает, использует и хранит персональные данные.',
+                    'en' => 'How Autostvabaks collects, uses and stores personal data.',
+                ],
+                'content' => [
+                    'et' => $draft['et'].<<<HTML
 <h2>1. Milliseid andmeid kogume</h2>
 <p>Päringu saatmisel kogume andmed, mille ise vormi sisestad: sõiduki registreerimisnumber, telefoninumber, e-posti aadress, soovitud hind, läbisõit, lisainfo, fotod ja eelistatud suhtluskeel. Lisaks salvestatakse tehnilised andmed (nt IP-aadress ja päringu saatmise aeg).</p>
 <h2>2. Milleks andmeid kasutame</h2>
@@ -140,9 +186,9 @@ HTML,
 <h2>5. Sinu õigused</h2>
 <p>Sul on õigus tutvuda oma andmetega, nõuda nende parandamist või kustutamist, piirata töötlemist, võtta nõusolek tagasi ning esitada kaebus Andmekaitse Inspektsioonile (<a href="https://www.aki.ee" target="_blank" rel="noopener">www.aki.ee</a>).</p>
 <h2>6. Vastutav töötleja ja kontakt</h2>
-<p>Isikuandmete vastutav töötleja on {$operator}, {$address}. Andmekaitsega seotud küsimustes kirjuta: <a href="mailto:{$email}">{$email}</a>.</p>
+<p>Isikuandmete vastutav töötleja on {$operatorLine['et']}. Andmekaitsega seotud küsimustes kirjuta: <a href="mailto:{$email}">{$email}</a>.</p>
 HTML,
-                'ru' => $draft['ru'].<<<HTML
+                    'ru' => $draft['ru'].<<<HTML
 <h2>1. Какие данные мы собираем</h2>
 <p>При отправке заявки мы получаем данные, которые вы сами указываете в форме: регистрационный номер автомобиля, номер телефона, адрес электронной почты, желаемую цену, пробег, дополнительную информацию, фотографии и предпочитаемый язык общения. Также сохраняются технические данные (например, IP-адрес и время отправки заявки).</p>
 <h2>2. Для чего мы используем данные</h2>
@@ -159,9 +205,9 @@ HTML,
 <h2>5. Ваши права</h2>
 <p>Вы вправе ознакомиться со своими данными, потребовать их исправления или удаления, ограничить обработку, отозвать согласие и подать жалобу в Инспекцию по защите данных (<a href="https://www.aki.ee" target="_blank" rel="noopener">www.aki.ee</a>).</p>
 <h2>6. Ответственный обработчик и контакты</h2>
-<p>Ответственный обработчик персональных данных – {$operator}, {$address}. По вопросам защиты данных пишите: <a href="mailto:{$email}">{$email}</a>.</p>
+<p>Ответственный обработчик персональных данных – {$operatorLine['ru']}. По вопросам защиты данных пишите: <a href="mailto:{$email}">{$email}</a>.</p>
 HTML,
-                'en' => $draft['en'].<<<HTML
+                    'en' => $draft['en'].<<<HTML
 <h2>1. What data we collect</h2>
 <p>When you send a request we collect the data you enter in the form: the vehicle registration number, phone number, e-mail address, desired price, mileage, additional information, photos and your preferred language. Technical data (such as your IP address and the time of the request) is stored as well.</p>
 <h2>2. What we use the data for</h2>
@@ -178,9 +224,10 @@ HTML,
 <h2>5. Your rights</h2>
 <p>You have the right to access your data, have it corrected or erased, restrict processing, withdraw your consent and lodge a complaint with the Estonian Data Protection Inspectorate (<a href="https://www.aki.ee" target="_blank" rel="noopener">www.aki.ee</a>).</p>
 <h2>6. Data controller and contact</h2>
-<p>The controller of personal data is {$operator}, {$address}. For data protection matters write to: <a href="mailto:{$email}">{$email}</a>.</p>
+<p>The controller of personal data is {$operatorLine['en']}. For data protection matters write to: <a href="mailto:{$email}">{$email}</a>.</p>
 HTML,
+                ],
             ],
-        ]);
+        ];
     }
 }
